@@ -46,7 +46,7 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="currentPage"
-        :page-sizes="[25, 50, 100, 200]"
+        :page-sizes="[15, 50, 100, 200]"
         :page-size="pageSize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="count"
@@ -66,7 +66,7 @@ export default {
         telephone: null
       },
       currentPage: 1, //初始页
-      pageSize: 25, //每页的数据
+      pageSize: 15, //每页的数据
       count: 0,
       rows: [],
       row: null
@@ -114,6 +114,7 @@ export default {
         });
         return;
       } else {
+        //alert(this.row.userId);
         this.$router.push({ path: "modifyUser", query: { row: this.row } });
       }
     },

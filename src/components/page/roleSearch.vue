@@ -17,13 +17,12 @@
       </el-row>
     </div>
     <el-table
-      :data="rows"
+      :data="rows.filter(data => !select_word || data.roleName.toLowerCase().includes(select_word.toLowerCase()) || data.roleCode.toLowerCase().includes(select_word.toLowerCase()))"
       border
       highlight-current-row
       :header-cell-style="{background:'#f4f4f4'}"
       element-loading-text="表格加载中..."
       stripe
-      @selection-change="handleSelectionChange"
       @current-change="getRowDatas"
     >
       <el-table-column type="index" label="序号" width="55"></el-table-column>
@@ -42,7 +41,8 @@ export default {
   data() {
     return {
       rows: [],
-      row: null
+      row: null,
+      select_word: ""
     };
   },
 
@@ -54,9 +54,23 @@ export default {
       this.rows = res.data;
     });
   },
-
+  computed: {
+    data() {
+      return this.rows.filter(d => {
+        if (
+          d.roleName.indexOf(this.select_cate) > -1 ||
+          d.roleCode.indexOf(this.select_word) > -1 ||
+          d.description.indexOf(this.select_word) > -1
+        ) {
+          return d;
+        }
+      });
+    }
+  },
   methods: {
-    addRole() {},
+    addRole() {
+      this.$router.push({ path: "modifyRole" });
+    },
     modifyRole() {
       if (this.row == null) {
         this.$message({

@@ -67,10 +67,10 @@
         <el-form-item>
           <el-row :gutter="10">
             <el-col :xs="12" :sm="12" :md="12" :lg="12" :xl="12">
-              <el-form-item label="角色：">
+              <el-form-item label="所属角色：">
                 <el-select v-model="roleIdList" multiple filterable style="width:400px;">
                   <el-option
-                    v-for="item in options"
+                    v-for="item in roleList"
                     :key="item.value"
                     :label="item.label"
                     :value="item.value"
@@ -101,8 +101,6 @@ export default {
   name: "modifyUser",
   data() {
     return {
-      //默认第一个选项卡
-      activeName: "first",
       form: {
         userId: null,
         loginName: null,
@@ -117,13 +115,13 @@ export default {
         organizationId: null,
         selectRoleIds: null
       },
-      options: [],
+      roleList: [],
       roleIdList: []
     };
   },
   created() {
     const row = this.$route.query.row;
-
+    //alert("1111:::::" + row.userId);
     if (typeof row != "undefined") {
       this.form.userId = row.userId;
       this.form.loginName = row.loginName;
@@ -135,6 +133,8 @@ export default {
       this.form.sex = row.sex;
       this.form.organizationId = row.organizationId;
       this.form.loginPassword = row.loginPassword;
+
+      //alert("进来了：" + this.form.userId);
     }
 
     this.getUserRoles();
@@ -143,16 +143,17 @@ export default {
     //获取角色列表
     getUserRoles() {
       request({
-        url: "/userManagement/getUserRoles",
+        url: "/baseSearch/getRolesByUserId",
         method: "get",
         params: { userId: this.form.userId }
       }).then(res => {
-        this.options = res.data.data.options;
+        this.roleList = res.data.data.roleList;
         this.roleIdList = res.data.data.roleIds;
       });
     },
 
     saveOrUpdateUser() {
+      //alert("2222:::::" + this.form.userId);
       //form表单传递数组后台无法接收，就转为字符串格式传递，后期找到解决方案后再改
       this.form.selectRoleIds = JSON.stringify(this.roleIdList);
       this.form.isValid = this.form._isValid ? "Y" : "N";
