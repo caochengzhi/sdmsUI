@@ -5,7 +5,7 @@ module.exports = {
     productionSourceMap: false,
     devServer: {
         port: 8088, // 端口号
-        host: 'localhost',
+        host: '127.0.0.1',
         https: false, // https:{type:Boolean}
         open: true, //配置自动启动浏览器
         proxy: {

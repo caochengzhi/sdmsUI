@@ -34,10 +34,17 @@
                   filter-placeholder="请输入用户"
                   v-model="userIds"
                   :data="userData"
+                  @change="handleChange"
                 ></el-transfer>
               </el-form-item>
             </el-col>
           </el-row>
+          <el-form-item align="right">
+            <el-button-group>
+              <el-button type="primary" icon="el-icon-lx-roundcheck" @click="saveOrUpdateRole()">保存</el-button>
+              <el-button type="primary" icon="el-icon-lx-forward" @click="$router.go(-1)">返回</el-button>
+            </el-button-group>
+          </el-form-item>
         </el-tab-pane>
         <el-tab-pane label="编辑权限" name="second">
           <el-row :gutter="10">
@@ -48,9 +55,12 @@
                   show-checkbox
                   default-expand-all
                   node-key="id"
+                  draggable
+                  :default-checked-keys="checkedKyes"
                   ref="tree"
                   highlight-current
                   :props="defaultProps"
+                  @check-change="getChecked"
                 ></el-tree>
               </el-form-item>
             </el-col>
@@ -59,6 +69,8 @@
       </el-tabs>
       <el-input v-model="form.roleId" type="hidden"></el-input>
       <el-input v-model="form.organizationId" type="hidden"></el-input>
+      <el-input v-model="form.checkedUserId" type="hidden"></el-input>
+      <el-input v-model="form.reosurceIds" type="hidden"></el-input>
     </el-form>
   </div>
 </template>
@@ -74,53 +86,21 @@ export default {
         roleId: null,
         roleName: null,
         roleCode: null,
-        description: null
+        description: null,
+        organizationId: null,
+        checkedUserId: null,
+        reosurceIds: null
       },
-      userData: [], //generateData(),
+      userData: [],
       userIds: [],
-      filterMethod(query, item) {
-        return item.searchr.indexOf(query) > -1;
-      },
-
-      treeData: [
-        {
-          id: 1,
-          label: "一级 1",
-          children: [
-            {
-              id: 4,
-              label: "二级 1-1",
-              children: [
-                {
-                  id: 9,
-                  label: "三级 1-1-1"
-                },
-                {
-                  id: 10,
-                  label: "三级 1-1-2"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          id: 2,
-          label: "一级 2",
-          children: [
-            {
-              id: 5,
-              label: "二级 2-1"
-            },
-            {
-              id: 6,
-              label: "二级 2-2"
-            }
-          ]
-        }
-      ],
+      checkedKyes: [],
+      treeData: [],
       defaultProps: {
         children: "children",
-        label: "label"
+        label: "title"
+      },
+      filterMethod(query, item) {
+        return item.searchr.indexOf(query) > -1;
       }
     };
   },
@@ -136,6 +116,7 @@ export default {
     }
 
     this.getUserList();
+    this.getSourcesTree();
   },
 
   methods: {
@@ -146,7 +127,7 @@ export default {
         data.push({
           label: user.userName,
           key: user.userId,
-          searchr: filters[index].userName
+          searchr: filters[index].pinyin
         });
       });
       return data;
@@ -161,7 +142,42 @@ export default {
       }).then(res => {
         this.userData = this.generateData(res.data.data.userList);
         this.userIds = res.data.data.userIds;
+        this.form.checkedUserId = this.userIds;
       });
+    },
+
+    //获取资源树
+    getSourcesTree() {
+      request({
+        url: "/baseSearch/getResourcesByRoleId",
+        method: "get",
+        params: { roleId: this.form.roleId }
+      }).then(res => {
+        this.treeData = res.data.data.resourceTree;
+        this.checkedKyes = res.data.data.checkIds;
+        this.form.reosurceIds = this.checkedKyes;
+      });
+    },
+    getChecked() {
+      var childIds = this.$refs.tree.getCheckedKeys();
+      var partentIds = this.$refs.tree.getHalfCheckedKeys();
+      this.form.reosurceIds = childIds + "," + partentIds;
+    },
+    saveOrUpdateRole() {
+      this.form.checkedUserId = JSON.stringify(this.form.checkedUserId);
+      request({
+        url: "/roleManager/saveRole",
+        method: "post",
+        params: this.form
+      }).then(res => {
+        this.$message({
+          message: res.data.msg,
+          type: res.data.code == "200" ? "success" : "error"
+        });
+      });
+    },
+    handleChange(value, direction, movedKeys) {
+      this.form.checkedUserId = value;
     }
   }
 };

@@ -166,6 +166,7 @@ export default {
           message: res.data.msg,
           type: res.data.code == "200" ? "success" : "error"
         });
+        this.render();
       });
     }
   }
