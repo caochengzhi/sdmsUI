@@ -16,9 +16,9 @@
         </el-row>
         <el-form-item align="right">
           <el-button-group>
-            <el-button type="primary" icon="el-icon-lx-search" @click="handleUserList">查询</el-button>
-            <el-button type="primary" icon="el-icon-lx-add" @click="addUser">新增</el-button>
-            <el-button type="primary" icon="el-icon-lx-settings" @click="modifyUser">修改</el-button>
+            <el-button type="primary" icon="el-icon-lx-search" @click="handleUserList">查 询</el-button>
+            <el-button type="primary" icon="el-icon-lx-add" @click="addUser">新 增</el-button>
+            <el-button type="primary" icon="el-icon-lx-settings" @click="modifyUser">修 改</el-button>
           </el-button-group>
         </el-form-item>
       </el-form>
@@ -97,7 +97,7 @@ export default {
         method: "post",
         params: para
       }).then(res => {
-        this.rows = res.data.rows;
+        this.rows = res.data.list;
         this.count = res.data.total;
         this.currentPage = res.data.pageNum;
       });

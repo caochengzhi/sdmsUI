@@ -34,6 +34,13 @@ export const constantRouterMap = [{
         }
     },
     {
+        path: '/dictManagement',
+        component: resolve => require(['../components/page/dictSearch.vue'], resolve),
+        meta: {
+            title: '字典管理'
+        }
+    },
+    {
         path: '/modifyUser',
         component: resolve => require(['../components/page/modifyUser.vue'], resolve),
         meta: {

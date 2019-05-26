@@ -2,15 +2,16 @@
   <div class="container">
     <div style="margin-bottom: 10px;">
       <el-row>
-        <el-col :span="12">&nbsp;</el-col>
+        <el-col :span="10">&nbsp;</el-col>
         <el-col :span="6">
           <el-input v-model="select_word" placeholder="筛选关键词" class="handle-input mr10"></el-input>
         </el-col>
         <div align="right">
-          <el-col :span="6">
+          <el-col :span="8">
             <el-button-group>
-              <el-button type="primary" icon="el-icon-lx-add" @click="addRole">新增</el-button>
-              <el-button type="primary" icon="el-icon-lx-settings" @click="modifyRole">修改</el-button>
+              <el-button type="primary" icon="el-icon-lx-search" @click="handleRoleList">查 询</el-button>
+              <el-button type="primary" icon="el-icon-lx-add" @click="addRole">新 增</el-button>
+              <el-button type="primary" icon="el-icon-lx-settings" @click="modifyRole">修 改</el-button>
             </el-button-group>
           </el-col>
         </div>
@@ -47,12 +48,7 @@ export default {
   },
 
   created() {
-    request({
-      url: "/roleManager/search",
-      method: "post"
-    }).then(res => {
-      this.rows = res.data;
-    });
+    //this.handleRoleList();
   },
   computed: {
     data() {
@@ -68,6 +64,14 @@ export default {
     }
   },
   methods: {
+    handleRoleList() {
+      request({
+        url: "/roleManager/search",
+        method: "post"
+      }).then(res => {
+        this.rows = res.data;
+      });
+    },
     addRole() {
       this.$router.push({ path: "modifyRole" });
     },
@@ -78,9 +82,8 @@ export default {
           type: "warning"
         });
         return;
-      } else {
-        this.$router.push({ path: "modifyRole", query: { row: this.row } });
       }
+      this.$router.push({ path: "modifyRole", query: { row: this.row } });
     },
     getRowDatas(currentRow, oldCurrentRow) {
       this.row = currentRow;

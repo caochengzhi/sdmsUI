@@ -121,22 +121,10 @@ export default {
   },
   created() {
     const row = this.$route.query.row;
-    //alert("1111:::::" + row.userId);
     if (typeof row != "undefined") {
-      this.form.userId = row.userId;
-      this.form.loginName = row.loginName;
-      this.form.userName = row.userName;
-      this.form.telephone = row.telephone;
-      this.form.phoneNumber = row.phoneNumber;
-      this.form.email = row.email;
+      this.form = row;
       this.form._isValid = row.isValid == "Y" ? true : false;
-      this.form.sex = row.sex;
-      this.form.organizationId = row.organizationId;
-      this.form.loginPassword = row.loginPassword;
-
-      //alert("进来了：" + this.form.userId);
     }
-
     this.getUserRoles();
   },
   methods: {
@@ -153,7 +141,6 @@ export default {
     },
 
     saveOrUpdateUser() {
-      //alert("2222:::::" + this.form.userId);
       //form表单传递数组后台无法接收，就转为字符串格式传递，后期找到解决方案后再改
       this.form.selectRoleIds = JSON.stringify(this.roleIdList);
       this.form.isValid = this.form._isValid ? "Y" : "N";
