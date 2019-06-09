@@ -48,7 +48,7 @@ import bus from "../common/bus";
 export default {
   data() {
     return {
-      collapse: false,
+      collapse: true,
       fullscreen: false,
       name: this.$store.getters.loginName,
       message: 2

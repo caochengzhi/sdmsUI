@@ -90,7 +90,9 @@ export default {
         pageNum: this.currentPage,
         pageSize: this.pageSize,
         loginName: this.searchForm.loginName,
-        telephone: this.searchForm.telephone
+        telephone: this.searchForm.telephone,
+        sortName: "createdDate",
+        sortOrder: "desc"
       };
       request({
         url: "/userManagement/search",
@@ -114,7 +116,6 @@ export default {
         });
         return;
       } else {
-        //alert(this.row.userId);
         this.$router.push({ path: "modifyUser", query: { row: this.row } });
       }
     },

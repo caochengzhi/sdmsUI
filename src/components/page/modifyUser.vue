@@ -59,7 +59,12 @@
             <el-col :xs="4" :sm="6" :md="10" :lg="2" :xl="11">&nbsp;</el-col>
             <el-col :xs="8" :sm="6" :md="2" :lg="7" :xl="1">
               <el-form-item label="是否有效：">
-                <el-switch v-model="form._isValid"></el-switch>
+                <el-switch
+                  v-model="form.isValid"
+                  active-value="Y"
+                  inactive-value="N"
+                  @change="changeSwitch"
+                ></el-switch>
               </el-form-item>
             </el-col>
           </el-row>
@@ -82,13 +87,16 @@
         </el-form-item>
         <el-input v-model="form.userId" type="hidden"></el-input>
         <el-input v-model="form.organizationId" type="hidden"></el-input>
-        <el-input v-model="form.isValid" type="hidden"></el-input>
         <el-input v-model="form.selectRoleIds" type="hidden"></el-input>
         <el-form-item align="right">
-          <el-button-group>
-            <el-button type="primary" icon="el-icon-lx-roundcheck" @click="saveOrUpdateUser()">保存</el-button>
-            <el-button type="primary" icon="el-icon-lx-forward" @click="$router.go(-1)">返回</el-button>
-          </el-button-group>
+          <el-popover placement="top" width="160" v-model="visible">
+            <p>确定执行此操作？</p>
+            <div style="text-align: center; margin: 0">
+              <el-button type="info" @click="visible = false">取消</el-button>
+              <el-button type="primary" @click="saveOrUpdateUser()">确定</el-button>
+            </div>
+            <el-button type="primary" slot="reference" icon="el-icon-lx-roundcheck">保存</el-button>
+          </el-popover>
         </el-form-item>
       </el-form>
     </div>
@@ -110,11 +118,11 @@ export default {
         phoneNumber: null,
         email: null,
         isValid: null,
-        _isValid: null,
         sex: null,
         organizationId: null,
         selectRoleIds: null
       },
+      visible: false,
       roleList: [],
       roleIdList: []
     };
@@ -123,11 +131,13 @@ export default {
     const row = this.$route.query.row;
     if (typeof row != "undefined") {
       this.form = row;
-      this.form._isValid = row.isValid == "Y" ? true : false;
     }
     this.getUserRoles();
   },
   methods: {
+    changeSwitch(val) {
+      this.form.isValid = val;
+    },
     //获取角色列表
     getUserRoles() {
       request({
@@ -143,7 +153,6 @@ export default {
     saveOrUpdateUser() {
       //form表单传递数组后台无法接收，就转为字符串格式传递，后期找到解决方案后再改
       this.form.selectRoleIds = JSON.stringify(this.roleIdList);
-      this.form.isValid = this.form._isValid ? "Y" : "N";
       request({
         url: "/userManagement/saveUser",
         method: "post",
@@ -153,7 +162,7 @@ export default {
           message: res.data.msg,
           type: res.data.code == "200" ? "success" : "error"
         });
-        this.render();
+        this.visible = false;
       });
     }
   }

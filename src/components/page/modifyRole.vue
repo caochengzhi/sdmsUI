@@ -45,10 +45,15 @@
             </el-row>
 
             <el-form-item align="right">
-              <el-button-group>
-                <el-button type="primary" icon="el-icon-lx-roundcheck" @click="saveOrUpdateRole()">保存</el-button>
-                <el-button type="primary" icon="el-icon-lx-forward" @click="$router.go(-1)">返回</el-button>
-              </el-button-group>
+            <el-popover placement="top" width="160" v-model="visible">
+              <p>确定执行此操作？</p>
+              <div style="text-align: center; margin: 0">
+                <el-button type="info" @click="visible = false">取消</el-button>
+                <el-button type="primary" @click="saveOrUpdateRole()">确定</el-button>
+              </div>
+              <el-button type="primary" slot="reference" icon="el-icon-lx-roundcheck">保存</el-button>
+            </el-popover>
+
             </el-form-item>
             <el-input v-model="form.roleId" type="hidden"></el-input>
             <el-input v-model="form.organizationId" type="hidden"></el-input>
@@ -97,6 +102,7 @@ export default {
         userIds: null,
         resourceIds: null
       },
+      visible: false,
       userData: [], //用户列表
       treeData: [], //资源树列表
       checkUserIds: [], //初始被选中用户
@@ -195,6 +201,7 @@ export default {
           message: res.data.msg,
           type: res.data.code == "200" ? "success" : "error"
         });
+        this.visible = false;
       });
     },
 

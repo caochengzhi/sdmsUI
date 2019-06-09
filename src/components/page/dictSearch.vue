@@ -1,16 +1,16 @@
 <template>
   <div class="container">
     <div>
-      <el-form ref="form" :model="searchForm" label-width="auto" size="mini">
+      <el-form ref="searchForm" :model="searchForm" label-width="auto" size="mini">
         <el-row :gutter="50">
           <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
             <el-form-item label="字典名称：">
-              <el-input v-model="searchForm.dictName" placeholder="登录名"></el-input>
+              <el-input v-model="searchForm.dictName" placeholder="字典名称"></el-input>
             </el-form-item>
           </el-col>
           <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
-            <el-form-item label="字典类型：">
-              <el-input v-model="searchForm.dictCode" placeholder="电话号码"></el-input>
+            <el-form-item label="字典编码：">
+              <el-input v-model="searchForm.dictCode" placeholder="字典编码"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -34,11 +34,20 @@
       @current-change="getRowDatas"
     >
       <el-table-column type="index" label="序号" width="55"></el-table-column>
-      <el-table-column prop="dictName" label="字典名称"></el-table-column>
+      <el-table-column prop="dictName" label="字典名称">
+        <template slot-scope="scope">
+          <el-button type="text" @click="handleView(scope.$index, scope.row)">{{scope.row.dictName}}</el-button>
+        </template>
+      </el-table-column>
       <el-table-column prop="dictCode" label="字典编码"></el-table-column>
-      <el-table-column prop="isValid" label="是否生效"></el-table-column>
+      <el-table-column prop="isValid" label="是否生效" width="70"></el-table-column>
       <el-table-column prop="remarks" label="备注信息"></el-table-column>
       <el-table-column prop="lastUpdatedDate" label="更新日期" sortable></el-table-column>
+      <el-table-column label="操作">
+        <template slot-scope="scope">
+          <el-button size="mini" type="danger" @click="handleEdit(scope.$index, scope.row)">字典维护</el-button>
+        </template>
+      </el-table-column>
     </el-table>
     <div class="pagination">
       <el-pagination
@@ -55,30 +64,43 @@
     <div>
       <!-- Form -->
       <el-dialog title="字典管理" :visible.sync="dialogFormVisible" width="30%">
-        <el-form :model="form">
-          <el-form-item label="字典名称" :label-width="formLabelWidth">
+        <el-form ref="form" :model="form">
+          <el-form-item label="字典名称" prop="dictName" :label-width="formLabelWidth">
             <el-input v-model="form.dictName"></el-input>
           </el-form-item>
-          <el-form-item label="字典编码" :label-width="formLabelWidth">
-            <el-input v-model="form.dictCode"></el-input>
+          <el-form-item label="字典编码" prop="dictCode" :label-width="formLabelWidth">
+            <el-input v-model="form.dictCode" :disabled="typeof this.form.dictId != 'undefined'"></el-input>
           </el-form-item>
-          <el-form-item label="备注信息" :label-width="formLabelWidth">
+          <el-form-item label="备注信息" prop="remarks" :label-width="formLabelWidth">
             <el-input v-model="form.remarks"></el-input>
           </el-form-item>
-          <el-form-item label="是否生效" :label-width="formLabelWidth">
-            <el-switch v-model="form._isValid"></el-switch>
+          <el-form-item label="是否生效" prop="isValid" :label-width="formLabelWidth">
+            <el-switch v-model="form.isValid" active-value="Y" inactive-value="N"></el-switch>
           </el-form-item>
+          <el-input v-model="form.dictId" type="hidden"></el-input>
+          <el-input v-model="form.organizationId" type="hidden"></el-input>
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="dialogFormVisible = false">取 消</el-button>
-          <el-button type="primary" @click="dialogFormVisible = false">保 存</el-button>
+          <el-button type="primary" @click="saveDictType">保 存</el-button>
         </div>
+      </el-dialog>
+
+      <!--table-->
+      <el-dialog title="字典明细" :visible.sync="dialogTableVisible">
+        <el-table :data="gridData">
+          <el-table-column property="dictDataName" label="字典键值" width="150"></el-table-column>
+          <el-table-column property="dictDataCode" label="字典标签" width="200"></el-table-column>
+          <el-table-column property="remarks" label="备注"></el-table-column>
+          <el-table-column property="isValid" label="是否有效"></el-table-column>
+        </el-table>
       </el-dialog>
     </div>
   </div>
 </template>
   <script>
 import request from "@/utils/request";
+import { getDictDatasByDictId } from "@/utils/baseRequest";
 export default {
   name: "dictManagement",
   data() {
@@ -91,14 +113,16 @@ export default {
       pageSize: 15, //每页的数据
       count: 0,
       rows: [],
+      gridData: [],
       row: null,
-
+      dialogTableVisible: false,
       dialogFormVisible: false,
       form: {
+        dictId: null,
         dictName: null,
         dictCode: null,
         isValid: null,
-        _isValid: null,
+        organizationId: null,
         remarks: null
       },
       formLabelWidth: "80px"
@@ -121,8 +145,8 @@ export default {
       let para = {
         pageNum: this.currentPage,
         pageSize: this.pageSize,
-        loginName: this.searchForm.loginName,
-        telephone: this.searchForm.telephone
+        dictName: this.searchForm.dictName,
+        dictCode: this.searchForm.dictCode
       };
       request({
         url: "/dictManagement/search",
@@ -136,7 +160,7 @@ export default {
     },
     addDictType() {
       this.dialogFormVisible = true;
-      this.form = [];
+      this.form = {};
     },
     modifyDictType() {
       if (this.row == null) {
@@ -147,8 +171,34 @@ export default {
         return;
       }
       this.dialogFormVisible = true;
-      this.form = this.row;
-      this.form._isValid = this.row.isValid == "Y" ? true : false;
+      //this.form = this.row;
+      this.form = Object.assign({}, this.row);
+    },
+    saveDictType() {
+      request({
+        url: "/dictManagement/saveDictType",
+        method: "post",
+        params: this.form
+      }).then(res => {
+        this.$message({
+          message: res.data.msg,
+          type: res.data.code == "200" ? "success" : "error"
+        });
+        this.handleDictList();
+      });
+      this.dialogFormVisible = false;
+    },
+    handleView(index, row) {
+      getDictDatasByDictId(row.dictId).then(response => {
+        this.gridData = response.data;
+      });
+      this.dialogTableVisible = true;
+    },
+    handleEdit(index, row) {
+      this.$router.push({
+        path: "modifyDictData",
+        query: { dictId: row.dictId }
+      });
     }
   },
 

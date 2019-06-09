@@ -21,35 +21,49 @@ export const constantRouterMap = [{
     },
     {
         path: '/roleManagement',
-        component: resolve => require(['../components/page/roleSearch.vue'], resolve),
+        component: resolve => require(['../components/page/RoleSearch.vue'], resolve),
         meta: {
             title: '角色管理'
         }
     },
     {
         path: '/userManagement',
-        component: resolve => require(['../components/page/sysUserSearch.vue'], resolve),
+        component: resolve => require(['../components/page/SysUserSearch.vue'], resolve),
         meta: {
             title: '用户管理'
         }
     },
     {
         path: '/dictManagement',
-        component: resolve => require(['../components/page/dictSearch.vue'], resolve),
+        component: resolve => require(['../components/page/DictSearch.vue'], resolve),
         meta: {
             title: '字典管理'
         }
     },
     {
+        path: '/logManagement',
+        component: resolve => require(['../components/page/SysLogSearch.vue'], resolve),
+        meta: {
+            title: '日志查询'
+        }
+    },
+    {
+        path: '/modifyDictData',
+        component: resolve => require(['../components/page/ModifyDictData.vue'], resolve),
+        meta: {
+            title: '编辑字典明细'
+        }
+    },
+    {
         path: '/modifyUser',
-        component: resolve => require(['../components/page/modifyUser.vue'], resolve),
+        component: resolve => require(['../components/page/ModifyUser.vue'], resolve),
         meta: {
             title: '编辑用户'
         }
     },
     {
         path: '/modifyRole',
-        component: resolve => require(['../components/page/modifyRole.vue'], resolve),
+        component: resolve => require(['../components/page/ModifyRole.vue'], resolve),
         meta: {
             title: '编辑角色'
         }
