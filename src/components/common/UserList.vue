@@ -5,9 +5,9 @@
       filterable
       clearable
       remote
-      change="getvalue"
+      @change="handleChangeValue"
       reserve-keyword
-      placeholder="选择用户"
+      placeholder="输入用户"
       :remote-method="getUsers"
       :loading="loading"
     >
@@ -52,8 +52,8 @@ export default {
         this.options = [];
       }
     },
-    getvalue(val) {
-      alert(val);
+    handleChangeValue(val) {
+      this.$emit("sendVal", val);
     }
   }
 };

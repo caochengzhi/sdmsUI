@@ -156,13 +156,16 @@ export default {
       request({
         url: "/userManagement/saveUser",
         method: "post",
-        params: this.form
+        params: this.COMMON.formFormat(this.form)
       }).then(res => {
         this.$message({
           message: res.data.msg,
           type: res.data.code == "200" ? "success" : "error"
         });
         this.visible = false;
+        if (res.data.code == "200") {
+          this.COMMON.closeTagAndGoBack(this.$options.name, this.$router);
+        }
       });
     }
   }

@@ -5,7 +5,7 @@
         <el-row :gutter="50">
           <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
             <el-form-item label="登录名：">
-              <el-input v-model="searchForm.loginName" placeholder="登录名"></el-input>
+              <user-list @sendVal="getLoginName" placeholder="登录名"></user-list>
             </el-form-item>
           </el-col>
           <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
@@ -38,8 +38,8 @@
       <el-table-column prop="telephone" label="电话"></el-table-column>
       <el-table-column prop="email" label="邮箱地址"></el-table-column>
       <el-table-column prop="isValid" label="是否有效" width="70"></el-table-column>
-      <el-table-column prop="createdDate" label="创建日期" sortable></el-table-column>
-      <el-table-column prop="lastUpdatedDate" label="更新日期" sortable></el-table-column>
+      <el-table-column prop="createdDate" :formatter="dateFormat" label="创建日期" sortable></el-table-column>
+      <el-table-column prop="lastUpdatedDate" :formatter="dateFormat" label="更新日期" sortable></el-table-column>
     </el-table>
     <div class="pagination">
       <el-pagination
@@ -57,6 +57,7 @@
     
 <script>
 import request from "@/utils/request";
+import userList from "@/components/common/UserList.vue";
 export default {
   name: "sysUserManager",
   data() {
@@ -72,11 +73,17 @@ export default {
       row: null
     };
   },
-  created() {
+  components: {
+    userList
+  },
+  mounted() {
     //this.handleUserList();
   },
 
   methods: {
+    getLoginName(val) {
+      this.searchForm.loginName = val;
+    },
     handleSizeChange(size) {
       this.pageSize = size;
       this.handleUserList();
@@ -91,7 +98,7 @@ export default {
         pageSize: this.pageSize,
         loginName: this.searchForm.loginName,
         telephone: this.searchForm.telephone,
-        sortName: "createdDate",
+        sortName: "created_date",
         sortOrder: "desc"
       };
       request({
@@ -121,6 +128,10 @@ export default {
     },
     getRowDatas(currentRow, oldCurrentRow) {
       this.row = currentRow;
+    },
+    dateFormat: function(row, column) {
+      var date = row[column.property];
+      return this.COMMON.dateFormat(date);
     },
     sendMsg(msg) {
       this.$notify.success({

@@ -42,7 +42,7 @@
       <el-table-column prop="dictCode" label="字典编码"></el-table-column>
       <el-table-column prop="isValid" label="是否生效" width="70"></el-table-column>
       <el-table-column prop="remarks" label="备注信息"></el-table-column>
-      <el-table-column prop="lastUpdatedDate" label="更新日期" sortable></el-table-column>
+      <el-table-column prop="lastUpdatedDate" :formatter="dateFormat" label="更新日期" sortable></el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
           <el-button size="mini" type="danger" @click="handleEdit(scope.$index, scope.row)">字典维护</el-button>
@@ -130,6 +130,10 @@ export default {
   },
 
   methods: {
+    dateFormat: function(row, column) {
+      var date = row[column.property];
+      return this.COMMON.dateFormat(date);
+    },
     getRowDatas(currentRow, oldCurrentRow) {
       this.row = currentRow;
     },

@@ -30,11 +30,6 @@
           <el-input v-model="scope.row.remarks" placeholder="备注"></el-input>
         </template>
       </el-table-column>
-      <el-table-column prop="lastUpdatedDate" label="更新日期">
-        <template slot-scope="scope">
-          <el-input v-model="scope.row.lastUpdatedDate" disabled placeholder="更新日期"></el-input>
-        </template>
-      </el-table-column>
       <el-table-column prop="isValid" label="是否生效" width="80">
         <template slot-scope="scope">
           <el-switch v-model="scope.row.isValid" active-value="Y" inactive-value="N"></el-switch>
@@ -65,7 +60,7 @@ export default {
       tableData: []
     };
   },
-  created() {
+  mounted() {
     const dictId = this.$route.query.dictId;
     getDictDatasByDictId(dictId)
       .then(response => {
@@ -86,7 +81,6 @@ export default {
         dictDataCode: null,
         remarks: null,
         dictId: this.$route.query.dictId,
-        lastUpdatedDate: new Date().toLocaleString(),
         isValid: "Y"
       };
       //添加新的行数
@@ -107,8 +101,6 @@ export default {
       }
     },
     save() {
-      //这部分应该是保存提交你添加的内容
-      console.log(JSON.stringify(this.tableData));
       request({
         url: "/dictManagement/saveDictDatas",
         method: "post",
@@ -118,6 +110,9 @@ export default {
           message: res.data.msg,
           type: res.data.code == "200" ? "success" : "error"
         });
+        if (res.data.code == "200") {
+          this.COMMON.closeTagAndGoBack(this.$options.name, this.$router);
+        }
       });
     }
   }

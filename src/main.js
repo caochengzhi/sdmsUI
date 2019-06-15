@@ -10,12 +10,15 @@ import './assets/css/icon.css'
 import './components/common/directives'
 import "babel-polyfill"
 import './permission' // permission control
+import common from "@/components/common/common.vue";//全局变量及方法集合
 
 Vue.config.productionTip = false
 Vue.use(ElementUI, {
     size: 'mini'
 });
 Vue.prototype.$axios = axios;//在vue中使用axios
+Vue.prototype.COMMON = common;
+
 
 //使用钩子函数对路由进行权限跳转
 /*

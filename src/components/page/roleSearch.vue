@@ -30,7 +30,7 @@
       <el-table-column prop="roleName" label="角色名称"></el-table-column>
       <el-table-column prop="roleCode" label="角色编码"></el-table-column>
       <el-table-column prop="description" label="备注信息"></el-table-column>
-      <el-table-column prop="createdDate" label="创建日期"></el-table-column>
+      <el-table-column prop="createdDate" :formatter="dateFormat" label="创建日期"></el-table-column>
     </el-table>
   </div>
 </template>
@@ -47,7 +47,7 @@ export default {
     };
   },
 
-  created() {
+  mounted() {
     //this.handleRoleList();
   },
   computed: {
@@ -87,6 +87,10 @@ export default {
     },
     getRowDatas(currentRow, oldCurrentRow) {
       this.row = currentRow;
+    },
+    dateFormat: function(row, column) {
+      var date = row[column.property];
+      return this.COMMON.dateFormat(date);
     }
   }
 };

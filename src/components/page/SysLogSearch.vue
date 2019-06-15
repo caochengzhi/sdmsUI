@@ -6,7 +6,7 @@
         <el-row :gutter="50">
           <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
             <el-form-item label="登录名：">
-              <user-list v-model="searchForm.loginName" placeholder="登录名"></user-list>
+              <user-list @sendVal="getLoginName" placeholder="登录名"></user-list>
             </el-form-item>
           </el-col>
           <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
@@ -26,11 +26,14 @@
           <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
             <el-form-item label="操作时间：">
               <el-date-picker
-                v-model="searchForm.createdDate"
-                type="daterange"
+                v-model="searchForm.selectDatas"
+                type="datetimerange"
+                :picker-options="pickerOptions"
                 range-separator="至"
                 start-placeholder="开始日期"
                 end-placeholder="结束日期"
+                align="right"
+                value-format="timestamp"
               ></el-date-picker>
             </el-form-item>
           </el-col>
@@ -56,7 +59,7 @@
       <el-table-column prop="ip" label="登录IP"></el-table-column>
       <el-table-column prop="operateType" label="操作类型" width="80"></el-table-column>
       <el-table-column prop="operateUrl" show-overflow-tooltip label="操作路径" width="150"></el-table-column>
-      <el-table-column prop="createdDate" label="操作时间" sortable></el-table-column>
+      <el-table-column prop="createdDate" label="操作时间" :formatter="dateFormat" sortable></el-table-column>
       <el-table-column prop="content" show-overflow-tooltip label="操作内容"></el-table-column>
       <el-table-column prop="remarks" label="备注"></el-table-column>
     </el-table>
@@ -84,7 +87,7 @@ export default {
       searchForm: {
         loginName: null,
         operateType: null,
-        createdDate: null
+        selectDatas: null
       },
       options: [
         {
@@ -103,7 +106,38 @@ export default {
       currentPage: 1, //初始页
       pageSize: 30, //每页的数据
       count: 0,
-      rows: []
+      rows: [],
+      pickerOptions: {
+        shortcuts: [
+          {
+            text: "最近一周",
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit("pick", [start, end]);
+            }
+          },
+          {
+            text: "最近一个月",
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              picker.$emit("pick", [start, end]);
+            }
+          },
+          {
+            text: "最近三个月",
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+              picker.$emit("pick", [start, end]);
+            }
+          }
+        ]
+      }
     };
   },
 
@@ -112,6 +146,9 @@ export default {
   },
 
   methods: {
+    getLoginName(val) {
+      this.searchForm.loginName = val;
+    },
     handleSizeChange(size) {
       this.pageSize = size;
       this.handleUserList();
@@ -120,13 +157,21 @@ export default {
       this.currentPage = currentPage;
       this.handleUserList();
     },
+    dateFormat: function(row, column) {
+      var date = row[column.property];
+      return this.COMMON.dateFormat(date);
+    },
     handleUserList() {
+      var _searchData = null;
+      if (this.searchForm.selectDatas != null) {
+        _searchData = JSON.stringify(this.searchForm.selectDatas);
+      }
       let para = {
         pageNum: this.currentPage,
         pageSize: this.pageSize,
         loginName: this.searchForm.loginName,
         operateType: this.searchForm.operateType,
-        createdDate: this.searchForm.createdDate
+        selectDatas: _searchData
       };
       request({
         url: "/logManagement/search",

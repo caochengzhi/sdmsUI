@@ -93,6 +93,7 @@ export default {
   watch: {
     $route(newValue, oldValue) {
       this.setTags(newValue);
+      window.tags = this.tagsList;
     }
   },
   created() {
