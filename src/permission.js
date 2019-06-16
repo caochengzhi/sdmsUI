@@ -22,7 +22,7 @@ router.beforeEach((to, from, next) => {
           const userInfo = res.data//返回用户信息，包括角色、左侧菜单
           store.dispatch('GenerateRoutes', { userInfo }).then(() => { // 根据roles权限生成可访问的路由表
             //router.addRoutes(store.getters.addRouters) // 动态添加可访问路由表,这个口留着，后期做实现，目前的方式的路由信息在前端全部配好了
-            next({ ...to, replace: true }) 
+            next({ ...to, replace: true })
           })
         }).catch((err) => {
           store.dispatch('FedLogOut').then(() => {

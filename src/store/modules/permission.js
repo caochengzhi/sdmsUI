@@ -24,6 +24,7 @@ const permission = {
       return new Promise(resolve => {
         commit('SET_MENUS', data.userInfo.menulist)
         commit('SET_BUTTON_GROUPS', data.userInfo.buttonGroups)
+        sessionStorage.setItem("buttonGroups", data.userInfo.buttonGroups);
         resolve()
       })
     }

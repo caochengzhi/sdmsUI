@@ -16,9 +16,24 @@
         </el-row>
         <el-form-item align="right">
           <el-button-group>
-            <el-button type="primary" icon="el-icon-lx-search" @click="handleUserList">查 询</el-button>
-            <el-button type="primary" icon="el-icon-lx-add" @click="addUser">新 增</el-button>
-            <el-button type="primary" icon="el-icon-lx-settings" @click="modifyUser">修 改</el-button>
+            <el-button
+              type="primary"
+              icon="el-icon-lx-search"
+              v-has="'userManagement-search'"
+              @click="handleUserList"
+            >查 询</el-button>
+            <el-button
+              type="primary"
+              icon="el-icon-lx-add"
+              v-has="'userManagement-add'"
+              @click="addUser"
+            >新 增</el-button>
+            <el-button
+              type="primary"
+              icon="el-icon-lx-settings"
+              v-has="'userManagement-modify'"
+              @click="modifyUser"
+            >修 改</el-button>
           </el-button-group>
         </el-form-item>
       </el-form>
@@ -93,6 +108,7 @@ export default {
       this.handleUserList();
     },
     handleUserList() {
+      debugger;
       let para = {
         pageNum: this.currentPage,
         pageSize: this.pageSize,

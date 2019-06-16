@@ -40,8 +40,13 @@
         </el-row>
         <el-form-item align="right">
           <el-button-group>
-            <el-button type="primary" icon="el-icon-lx-search" @click="handleUserList">查 询</el-button>
-            <el-button type="primary" icon="el-icon-lx-forward">重 置</el-button>
+            <el-button
+              type="primary"
+              icon="el-icon-lx-search"
+              v-has="'logManagement-search'"
+              @click="handleUserList"
+            >查 询</el-button>
+            <el-button type="primary" @click="restFrm" icon="el-icon-lx-forward">重 置</el-button>
           </el-button-group>
         </el-form-item>
       </el-form>
@@ -146,6 +151,9 @@ export default {
   },
 
   methods: {
+    restFrm() {
+      this.searchForm = {};
+    },
     getLoginName(val) {
       this.searchForm.loginName = val;
     },

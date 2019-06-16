@@ -9,9 +9,24 @@
         <div align="right">
           <el-col :span="8">
             <el-button-group>
-              <el-button type="primary" icon="el-icon-lx-search" @click="handleRoleList">查 询</el-button>
-              <el-button type="primary" icon="el-icon-lx-add" @click="addRole">新 增</el-button>
-              <el-button type="primary" icon="el-icon-lx-settings" @click="modifyRole">修 改</el-button>
+              <el-button
+                type="primary"
+                icon="el-icon-lx-search"
+                v-has="'roleManagement-search'"
+                @click="handleRoleList"
+              >查 询</el-button>
+              <el-button
+                type="primary"
+                icon="el-icon-lx-add"
+                v-has="'roleManagement-add'"
+                @click="addRole"
+              >新 增</el-button>
+              <el-button
+                type="primary"
+                icon="el-icon-lx-settings"
+                v-has="'roleManagement-modify'"
+                @click="modifyRole"
+              >修 改</el-button>
             </el-button-group>
           </el-col>
         </div>

@@ -16,9 +16,24 @@
         </el-row>
         <el-form-item align="right">
           <el-button-group>
-            <el-button type="primary" icon="el-icon-lx-search" @click="handleDictList">查 询</el-button>
-            <el-button type="primary" icon="el-icon-lx-add" @click="addDictType">新 增</el-button>
-            <el-button type="primary" icon="el-icon-lx-settings" @click="modifyDictType">修 改</el-button>
+            <el-button
+              type="primary"
+              icon="el-icon-lx-search"
+              v-has="'dictManagement-search'"
+              @click="handleDictList"
+            >查 询</el-button>
+            <el-button
+              type="primary"
+              icon="el-icon-lx-add"
+              v-has="'dictManagement-add'"
+              @click="addDictType"
+            >新 增</el-button>
+            <el-button
+              type="primary"
+              icon="el-icon-lx-settings"
+              v-has="'dictManagement-modify'"
+              @click="modifyDictType"
+            >修 改</el-button>
           </el-button-group>
         </el-form-item>
       </el-form>

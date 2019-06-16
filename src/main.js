@@ -19,6 +19,30 @@ Vue.use(ElementUI, {
 Vue.prototype.$axios = axios;//在vue中使用axios
 Vue.prototype.COMMON = common;
 
+//按钮权限控制
+const has = Vue.directive('has', {
+    inserted: function (el, binding) {
+        // 获取按钮权限
+        if (!Vue.prototype.$_has(binding.value)) {
+            el.parentNode.removeChild(el)
+        }
+    }
+})
+Vue.prototype.$_has = function (value) {
+    let isExit = false
+    let buttonpermsStr = sessionStorage.getItem("buttonGroups").split(",")
+    if (buttonpermsStr === undefined || buttonpermsStr === null) {
+        return false
+    }
+    for (let i = 0; i < buttonpermsStr.length; i++) {
+        if (value === buttonpermsStr[i]) {
+            isExit = true
+            break
+        }
+    }
+    return isExit
+}
+export { has }
 
 //使用钩子函数对路由进行权限跳转
 /*
