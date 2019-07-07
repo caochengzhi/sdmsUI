@@ -54,6 +54,7 @@
     <el-table
       :data="rows"
       border
+      height="300"
       highlight-current-row
       :header-cell-style="{background:'#f4f4f4'}"
       element-loading-text="表格加载中..."
@@ -179,6 +180,8 @@ export default {
         pageSize: this.pageSize,
         loginName: this.searchForm.loginName,
         operateType: this.searchForm.operateType,
+        sortName: "created_date",
+        sortOrder: "desc",
         selectDatas: _searchData
       };
       request({

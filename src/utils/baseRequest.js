@@ -38,6 +38,14 @@ export function getDictDatasByDictId(dictId) {
     })
 }
 
+export function getDictDatasByDictCode(dictCode) {
+    return request({
+        url: "/baseSearch/getDictDatasByDictCode",
+        method: "get",
+        params: { dictCode: dictCode }
+    })
+}
+
 /*
  * 获取当前账套的用户列表
  */

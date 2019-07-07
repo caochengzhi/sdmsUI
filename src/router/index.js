@@ -68,7 +68,20 @@ export const constantRouterMap = [{
             title: '编辑角色'
         }
     },
-
+    {
+        path: '/poManagement',
+        component: resolve => require(['../components/page/PoSearch.vue'], resolve),
+        meta: {
+            title: 'PO信息管理'
+        }
+    },
+    {
+        path: '/addPoInfo',
+        component: resolve => require(['../components/page/AddPoInfo.vue'], resolve),
+        meta: {
+            title: 'PO手工录入'
+        }
+    },
 
 
 

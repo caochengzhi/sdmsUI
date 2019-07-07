@@ -42,6 +42,7 @@
     <el-table
       :data="rows"
       border
+      height="300"
       highlight-current-row
       :header-cell-style="{background:'#f4f4f4'}"
       element-loading-text="表格加载中..."
@@ -197,7 +198,7 @@ export default {
       request({
         url: "/dictManagement/saveDictType",
         method: "post",
-        params: this.form
+        params: this.COMMON.formFormat(this.form) //表单日期格式化
       }).then(res => {
         this.$message({
           message: res.data.msg,
