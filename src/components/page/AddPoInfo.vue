@@ -25,15 +25,29 @@
           </el-col>
           <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
             <el-form-item label="采购日期：" prop="dateOfPurchase">
-              <el-date-picker v-model="poForm.dateOfPurchase" type="date" placeholder="采购日期"></el-date-picker>
+              <el-date-picker
+                v-model="poForm.dateOfPurchase"
+                type="date"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                placeholder="采购日期"
+                :picker-options="pickerOptions"
+              ></el-date-picker>
             </el-form-item>
           </el-col>
         </el-row>
 
         <el-row :gutter="50">
           <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
-            <el-form-item label="货品名称：" prop="item">
-              <el-input v-model="poForm.item" placeholder="货品名称" clearable></el-input>
+            <el-form-item label="货品名称：" prop="itemId">
+              <!-- <el-input v-model="poForm.item" placeholder="货品名称" clearable></el-input> -->
+              <el-select v-model="poForm.itemId" placeholder="货品名称">
+                <el-option
+                  v-for="im in itemOptions"
+                  :key="im.value"
+                  :label="im.label"
+                  :value="im.value"
+                ></el-option>
+              </el-select>
             </el-form-item>
           </el-col>
           <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
@@ -177,7 +191,7 @@
 import dictSelect from "@/components/common/DictDataSelect.vue";
 import poLine from "@/components/page/PoLine.vue";
 import request from "@/utils/request";
-import { getDictDatasByDictCode } from "@/utils/baseRequest";
+import { getDictDatasByDictCode, getItems } from "@/utils/baseRequest";
 export default {
   name: "addPoInfo",
   data() {
@@ -186,7 +200,7 @@ export default {
         poType: null,
         originPlace: null,
         dateOfPurchase: null,
-        item: null,
+        itemId: null,
         vendor: null,
         totalAmount: null,
         buyer: null,
@@ -201,6 +215,28 @@ export default {
         packageType: null,
         remarks: null
       },
+      itemOptions: [],
+      pickerOptions: {
+        disabledDate(time) {
+          return time.getTime() > Date.now();
+        },
+        shortcuts: [
+          {
+            text: "今天",
+            onClick(picker) {
+              picker.$emit("pick", new Date());
+            }
+          },
+          {
+            text: "昨天",
+            onClick(picker) {
+              const date = new Date();
+              date.setTime(date.getTime() - 3600 * 1000 * 24);
+              picker.$emit("pick", date);
+            }
+          }
+        ]
+      },
       rules: {
         poType: [
           { required: true, message: "采购类型不允许为空", trigger: "change" }
@@ -208,20 +244,14 @@ export default {
         originPlace: [
           { required: true, message: "产地信息不允许为空", trigger: "change" }
         ],
+        dateOfPurchase: [
+          { required: true, message: "请选择日期", trigger: "change" }
+        ],
         unit: [
           { required: true, message: "采购类型不允许为空", trigger: "change" }
         ],
-        dateOfPurchase: [
-          {
-            type: "date",
-            required: true,
-            message: "采购日期不允许为空",
-            trigger: "change"
-          }
-        ],
-        item: [
-          { required: true, message: "货品名称不允许为空", trigger: "blur" },
-          { min: 1, max: 10, message: "长度在 1 到 10 个字符", trigger: "blur" }
+        itemId: [
+          { required: true, message: "货品名称不允许为空", trigger: "blur" }
         ],
         vendor: [
           { required: true, message: "供货商信息不允许为空", trigger: "blur" },
@@ -247,7 +277,16 @@ export default {
     poLine
   },
 
-  mounted() {},
+  mounted() {
+    getItems().then(response => {
+      this.itemOptions = response.data.map(item => {
+        return {
+          value: item.itemId,
+          label: item.item
+        };
+      });
+    });
+  },
 
   methods: {
     submitForm(formName) {
@@ -262,9 +301,24 @@ export default {
               this.sendMsg("毛重应该大于净重,请检查");
               return false;
             }
-            alert("submit!");
+
+            request({
+              url: "/poManager/savePo",
+              method: "post",
+              params: this.poForm,
+              data: this.poLines
+            }).then(res => {
+              this.$message({
+                message: res.data.msg,
+                type: res.data.code == "200" ? "success" : "error"
+              });
+              this.visible = false;
+              if (res.data.code == "200") {
+                this.COMMON.closeTagAndGoBack(this.$options.name, this.$router);
+              }
+            });
           } else {
-            alert("error submit!!");
+            this.sendMsg("数据验证不通过，请检查");
             return false;
           }
         });
@@ -333,7 +387,7 @@ export default {
     getUnit(val) {
       this.poForm.unit = val;
     },
-    getPackageType() {
+    getPackageType(val) {
       this.poForm.packageType = val;
     },
     getPoLineDatas(poLineVal) {

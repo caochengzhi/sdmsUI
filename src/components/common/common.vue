@@ -28,6 +28,7 @@ function formFormat(form) {
   ) {
     form.lastUpdatedDate = dateFormat(form.lastUpdatedDate);
   }
+
   return form;
 }
 

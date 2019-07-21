@@ -46,6 +46,24 @@ export function getDictDatasByDictCode(dictCode) {
     })
 }
 
+export function getItems() {
+    return request({
+        url:"/baseSearch/getItems",
+        method:"get"
+    })
+}
+
+/**
+ * 通过PO头查询对应的PO行数据
+ */
+export function getPoLinesByHeadId(headerId){
+    return request({
+        url:"/poManager/getPoLinesByHeadId",
+        method:"get",
+        params: { headerId: headerId }
+    })
+}
+
 /*
  * 获取当前账套的用户列表
  */

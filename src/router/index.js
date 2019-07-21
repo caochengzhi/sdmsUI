@@ -69,6 +69,13 @@ export const constantRouterMap = [{
         }
     },
     {
+        path: '/transactionManagement',
+        component: resolve => require(['../components/page/MaterialTransSearch.vue'], resolve),
+        meta: {
+            title: 'PO信息管理'
+        }
+    },
+    {
         path: '/poManagement',
         component: resolve => require(['../components/page/PoSearch.vue'], resolve),
         meta: {

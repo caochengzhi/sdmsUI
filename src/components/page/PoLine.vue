@@ -97,7 +97,7 @@ export default {
     getDictDatasByDictCode("standards").then(response => {
       this.options = response.data.map(item => {
         return {
-          value: item.dictDataCode,
+          value: item.id,
           label: item.dictDataName
         };
       });

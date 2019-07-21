@@ -103,7 +103,7 @@
       </el-dialog>
 
       <!--table-->
-      <el-dialog title="字典明细" :visible.sync="dialogTableVisible">
+      <el-dialog title="字典明细" :visible.sync="dialogTableVisible" center>
         <el-table :data="gridData">
           <el-table-column property="dictDataName" label="字典键值" width="150"></el-table-column>
           <el-table-column property="dictDataCode" label="字典标签" width="200"></el-table-column>
