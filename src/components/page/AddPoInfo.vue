@@ -248,7 +248,7 @@ export default {
           { required: true, message: "请选择日期", trigger: "change" }
         ],
         unit: [
-          { required: true, message: "采购类型不允许为空", trigger: "change" }
+          { required: true, message: "单位不允许为空", trigger: "change" }
         ],
         itemId: [
           { required: true, message: "货品名称不允许为空", trigger: "blur" }

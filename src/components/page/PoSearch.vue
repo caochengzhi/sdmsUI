@@ -1,7 +1,24 @@
 <template>
   <div class="container">
     <div>
-      <el-form ref="form" :model="searchForm" label-width="auto" size="mini">
+      <el-form ref="form" :model="searchForm" label-width="auto">
+        <el-form-item align="right">
+          <el-button-group>
+            <el-button
+              type="primary"
+              icon="el-icon-lx-add"
+              v-has="'poManagement-input'"
+              @click="addPo"
+            >PO手工录入</el-button>
+            <el-button type="primary" icon="el-icon-lx-add" @click="autoCreateTransInfo">自动创建发车信息</el-button>
+            <el-button
+              type="primary"
+              icon="el-icon-lx-add"
+              v-has="'poManagement-create'"
+              @click="handCreateTransInfo"
+            >手工创建发车信息</el-button>
+          </el-button-group>
+        </el-form-item>
         <el-row :gutter="50">
           <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
             <el-form-item label="PO：">
@@ -73,12 +90,6 @@
               @click="handlePoList"
             >查 询</el-button>
             <el-button type="primary" @click="restFrm" icon="el-icon-lx-forward">重 置</el-button>
-            <el-button
-              type="primary"
-              icon="el-icon-lx-add"
-              v-has="'poManagement-input'"
-              @click="addPo"
-            >PO手工录入</el-button>
           </el-button-group>
         </el-form-item>
       </el-form>
@@ -92,9 +103,10 @@
       element-loading-text="表格加载中..."
       stripe
       @current-change="getRowDatas"
+      @selection-change="handleSelectionChange"
     >
-      <el-table-column fixed type="index" label="序号" width="55"></el-table-column>
-      <el-table-column fixed prop="poNumber" label="PO头" show-overflow-tooltip width="190">
+      <el-table-column fixed type="selection" width="55"></el-table-column>
+      <el-table-column fixed prop="poNumber" label="PO" show-overflow-tooltip width="190">
         <template slot-scope="scope">
           <el-button type="text" @click="handleView(scope.$index, scope.row)">{{scope.row.poNumber}}</el-button>
         </template>
@@ -144,18 +156,61 @@
         layout="total, sizes, prev, pager, next, jumper"
         :total="count"
       ></el-pagination>
-
-      <!--table-->
-      <el-dialog title="PO行明细" :visible.sync="dialogTableVisible" center>
-        <el-table :data="gridData">
-          <el-table-column property="specificName" label="规格"></el-table-column>
-          <el-table-column property="pieceNum" label="件数"></el-table-column>
-          <el-table-column property="weight" label="重量"></el-table-column>
-          <el-table-column property="unitPrice" label="单价"></el-table-column>
-          <el-table-column property="remarks" label="备注" width="200"></el-table-column>
-        </el-table>
-      </el-dialog>
     </div>
+
+    <!-- Form -->
+    <el-dialog title="创建发车信息" :visible.sync="dialogFormVisible" width="30%">
+      <el-form ref="form" :model="form" :rules="rules">
+        <el-form-item label="司机姓名" prop="driverName" :label-width="formLabelWidth">
+          <el-input v-model="form.driverName"></el-input>
+        </el-form-item>
+        <el-form-item label="司机电话" prop="driverPhone" :label-width="formLabelWidth">
+          <el-input v-model="form.driverPhone" oninput="value=value.replace(/[^\d.]/g,'')"></el-input>
+        </el-form-item>
+        <el-form-item label="车牌号" prop="carNumber" :label-width="formLabelWidth">
+          <el-input v-model="form.carNumber"></el-input>
+        </el-form-item>
+        <el-form-item label="到货仓库" prop="warehouse" :label-width="formLabelWidth">
+          <dict-select @getDictVal="getWarehouse" v-bind:dictCode="'warehouse'"></dict-select>
+        </el-form-item>
+        <el-form-item label="发货日期" prop="shipDate" :label-width="formLabelWidth">
+          <el-date-picker
+            v-model="form.shipDate"
+            align="right"
+            type="date"
+            placeholder="选择日期"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            :picker-options="picker1Options"
+          ></el-date-picker>
+        </el-form-item>
+        <el-form-item label="预计到货日期" prop="scheduledArrivalDate" :label-width="formLabelWidth">
+          <el-date-picker
+            v-model="form.scheduledArrivalDate"
+            align="right"
+            type="date"
+            placeholder="选择日期"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            :picker-options="picker1Options"
+          ></el-date-picker>
+        </el-form-item>
+        <el-input v-model="form.dictId" type="hidden"></el-input>
+        <el-input v-model="form.organizationId" type="hidden"></el-input>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="createTransInfos('form')">创 建</el-button>
+      </div>
+    </el-dialog>
+    <!--table-->
+    <el-dialog title="PO行明细" :visible.sync="dialogTableVisible" center>
+      <el-table :data="gridData">
+        <el-table-column property="specificName" label="规格"></el-table-column>
+        <el-table-column property="pieceNum" label="件数"></el-table-column>
+        <el-table-column property="weight" label="重量"></el-table-column>
+        <el-table-column property="unitPrice" label="单价"></el-table-column>
+        <el-table-column property="remarks" label="备注" width="200"></el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
     
@@ -175,7 +230,17 @@ export default {
         poType: null,
         isClosed: null
       },
+      form: {
+        driverName: null,
+        driverPhone: null,
+        carNumber: null,
+        warehouse: null,
+        shipDate: null,
+        scheduledArrivalDate: null,
+        poHeaderIds: []
+      },
       dialogTableVisible: false,
+      dialogFormVisible: false,
       gridData: [],
       itemOptions: [],
       options: [
@@ -221,6 +286,46 @@ export default {
           }
         ]
       },
+      picker1Options: {
+        shortcuts: [
+          {
+            text: "今天",
+            onClick(picker) {
+              picker.$emit("pick", new Date());
+            }
+          },
+          {
+            text: "明天",
+            onClick(picker) {
+              const date = new Date();
+              date.setTime(date.getTime() + 3600 * 1000 * 24);
+              picker.$emit("pick", date);
+            }
+          }
+        ]
+      },
+      rules: {
+        driverName: [{ required: true, message: "司机姓名不允许为空" }],
+        driverPhone: [
+          { required: true, message: "手机号不允许为空" },
+          { min: 11, max: 11, message: "手机号码格式异常", trigger: "blur" }
+        ],
+        carNumber: [{ required: true, message: "车牌号不允许为空" }],
+        warehouse: [
+          { required: true, message: "仓库信息不允许为空", trigger: "change" }
+        ],
+        shipDate: [
+          { required: true, message: "发车日期不允许为空", trigger: "change" }
+        ],
+        scheduledArrivalDate: [
+          {
+            required: true,
+            message: "预计到货日期不允许为空",
+            trigger: "change"
+          }
+        ]
+      },
+      formLabelWidth: "110px",
       currentPage: 1, //初始页
       pageSize: 15, //每页的数据
       count: 0,
@@ -279,8 +384,53 @@ export default {
         this.currentPage = res.data.pageNum;
       });
     },
+    createTransInfos(formName) {
+      if (this.form.warehouse == null || this.form.warehouse == "") {
+        this.$message({
+          message: "'到货仓库'不允许为空",
+          type: "warning"
+        });
+        return false;
+      }
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          request({
+            url: "/dictManagement/saveDictType",这个地址要改，后台要新建服务
+            method: "post",
+            params: this.form 这个里面有个headerid数组记得要处理 //表单日期格式化
+          }).then(res => {
+            this.$message({
+              message: res.data.msg,
+              type: res.data.code == "200" ? "success" : "error"
+            });
+          });
+        }
+      });
+    },
     addPo() {
       this.$router.push({ path: "addPoinfo" });
+    },
+    autoCreateTransInfo() {
+      if (this.form.poHeaderIds.length == 0) {
+        this.$message({
+          message: "请选择需创建发车信息的PO行",
+          type: "warning"
+        });
+        return false;
+      }
+      this.dialogFormVisible = true;
+      this.form = {};
+    },
+    handCreateTransInfo() {
+      if (this.row == null) {
+        this.$message({
+          message: "请点击需要创建发车信息的PO行",
+          type: "warning"
+        });
+        return;
+      } else {
+        this.$router.push({ path: "addTransinfo", query: { row: this.row } });
+      }
     },
     getRowDatas(currentRow, oldCurrentRow) {
       this.row = currentRow;
@@ -292,18 +442,19 @@ export default {
     getOriginPlace(val) {
       this.searchForm.originPlace = val;
     },
+    getWarehouse(val) {
+      this.form.warehouse = val;
+    },
     handleView(index, row) {
       getPoLinesByHeadId(row.headerId).then(response => {
         this.gridData = response.data;
       });
       this.dialogTableVisible = true;
     },
-    sendMsg(msg) {
-      this.$notify.success({
-        title: "Info",
-        message: msg,
-        position: "top-right",
-        showClose: false
+    handleSelectionChange(rows) {
+      this.form.poHeaderIds = [];
+      rows.forEach(row => {
+        this.form.poHeaderIds.push(row.headerId);
       });
     }
   }

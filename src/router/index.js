@@ -72,7 +72,7 @@ export const constantRouterMap = [{
         path: '/transactionManagement',
         component: resolve => require(['../components/page/MaterialTransSearch.vue'], resolve),
         meta: {
-            title: 'PO信息管理'
+            title: '交易管理'
         }
     },
     {
@@ -86,7 +86,14 @@ export const constantRouterMap = [{
         path: '/addPoInfo',
         component: resolve => require(['../components/page/AddPoInfo.vue'], resolve),
         meta: {
-            title: 'PO手工录入'
+            title: 'PO信息录入'
+        }
+    },
+    {
+        path: '/addTransinfo',
+        component: resolve => require(['../components/page/AddTransInfo.vue'], resolve),
+        meta: {
+            title: '创建发车信息'
         }
     },
 
