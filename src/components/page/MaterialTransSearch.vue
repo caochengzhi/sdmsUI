@@ -1,14 +1,18 @@
-
 <template>
   <div class="container">
     <div>
-      <el-form :model="searchFrm" label-width="auto">
+      <el-form :model="searchForm" label-width="auto">
+        <el-form-item align="right">
+          <el-button-group>
+            <el-button
+              type="primary"
+              icon="el-icon-circle-check-outline"
+              v-has="'transactionManagement-createStock'"
+              @click="createStock"
+            >收货</el-button>
+          </el-button-group>
+        </el-form-item>
         <el-row :gutter="50">
-          <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
-            <el-form-item label="PO：">
-              <el-input v-model="searchForm.poNumber" placeholder="PO信息"></el-input>
-            </el-form-item>
-          </el-col>
           <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
             <el-form-item label="产品：">
               <el-select v-model="searchForm.itemId" clearable>
@@ -19,6 +23,11 @@
                   :value="im.value"
                 ></el-option>
               </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
+            <el-form-item label="到货仓库：">
+              <dict-select @getDictVal="getWarehouse" v-bind:dictCode="'warehouse'"></dict-select>
             </el-form-item>
           </el-col>
           <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
@@ -46,8 +55,8 @@
             </el-form-item>
           </el-col>
           <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
-            <el-form-item label="是否入库：">
-              <el-select v-model="searchForm.io_status" clearable>
+            <el-form-item label="入库：">
+              <el-select v-model="searchForm.ioStatus" clearable>
                 <el-option
                   v-for="im in ioOptions"
                   :key="im.value"
@@ -80,20 +89,22 @@
       element-loading-text="表格加载中..."
       stripe
       @current-change="getRowDatas"
+      @selection-change="handleSelectionChange"
     >
+      <el-table-column fixed type="selection" width="55"></el-table-column>
       <el-table-column fixed type="index" label="序号" width="55"></el-table-column>
-      <el-table-column fixed prop="poNumber" label="PO" show-overflow-tooltip width="190">
-        <template slot-scope="scope">
-          <el-button type="text" @click="handleView(scope.$index, scope.row)">{{scope.row.poNumber}}</el-button>
-        </template>
-      </el-table-column>
-      <el-table-column fixed prop="poLine" label="PO行"></el-table-column>
-      <el-table-column fixed prop="ioType" label="交易类型"></el-table-column>
-      <el-table-column prop="shipDate" label="发货日期" :formatter="dateFormat" width="150"></el-table-column>
+      <el-table-column fixed prop="item" label="产品名称"></el-table-column>
+      <el-table-column fixed prop="specificName" label="规格"></el-table-column>
+      <el-table-column fixed prop="ioTypeName" label="交易类型"></el-table-column>
+      <el-table-column prop="warehouseName" label="到货仓库"></el-table-column>
+      <el-table-column prop="carNumber" label="车牌号" width="100"></el-table-column>
+      <el-table-column prop="driverName" label="司机姓名"></el-table-column>
+      <el-table-column prop="driverPhone" label="司机电话" width="100"></el-table-column>
+      <el-table-column prop="shipDate" label="发车日期" :formatter="dateFormatYYYYMMDD" width="150"></el-table-column>
       <el-table-column
         prop="scheduledArrivalDate"
         label="预计到货日期"
-        :formatter="dateFormat"
+        :formatter="dateFormatYYYYMMDD"
         width="150"
       ></el-table-column>
       <el-table-column prop="actualArrivalDate" label="实际到货日期" :formatter="dateFormat" width="150"></el-table-column>
@@ -101,19 +112,9 @@
       <el-table-column prop="ioStatus" label="是否入库"></el-table-column>
       <el-table-column prop="transactionPiece" label="件数"></el-table-column>
       <el-table-column prop="transactionWeight" label="重量/斤"></el-table-column>
-      <el-table-column prop="warehouse" label="到货仓库"></el-table-column>
-      <el-table-column prop="carNumber" label="车牌号"></el-table-column>
-      <el-table-column prop="driverName" label="司机姓名"></el-table-column>
-      <el-table-column prop="driverPhone" label="司机电话" width="100"></el-table-column>
       <el-table-column prop="createdBy" label="创建人" width="100"></el-table-column>
+      <el-table-column prop="createdDate" :formatter="dateFormat" label="创建日期" sortable width="150"></el-table-column>
       <el-table-column prop="lastUpdatedBy" label="更新人" width="100"></el-table-column>
-      <el-table-column
-        prop="created_date"
-        :formatter="dateFormat"
-        label="创建日期"
-        sortable
-        width="150"
-      ></el-table-column>
       <el-table-column
         prop="lastUpdatedDate"
         :formatter="dateFormat"
@@ -147,12 +148,18 @@ export default {
     return {
       searchForm: {
         itemId: null,
-        poNumber: null,
+        warehouse: null,
         shipDate: null,
         carNumber: null,
         ioType: null,
         ioStatus: null
       },
+      currentPage: 1, //初始页
+      pageSize: 15, //每页的数据
+      count: 0,
+      rows: [],
+      transactionIds: [],
+      row: null,
       itemOptions: [],
       ioOptions: [
         {
@@ -212,13 +219,96 @@ export default {
   },
 
   methods: {
-    handleList() {},
+    dateFormat: function(row, column) {
+      var date = row[column.property];
+      return this.COMMON.dateFormat(date);
+    },
+    dateFormatYYYYMMDD: function(row, column) {
+      var date = row[column.property];
+      return this.COMMON.dateFormatYYYYMMDD(date);
+    },
+    handleSizeChange(size) {
+      this.pageSize = size;
+      this.handleList();
+    },
+    handleCurrentChange(currentPage) {
+      this.currentPage = currentPage;
+      this.handleList();
+    },
+    handleList() {
+      let para = {
+        itemId: this.searchForm.itemId,
+        warehouse: this.searchForm.warehouse,
+        shipDate: this.searchForm.shipDate,
+        carNumber: this.searchForm.carNumber,
+        ioType: this.searchForm.ioType,
+        ioStatus: this.searchForm.ioStatus,
+        pageNum: this.currentPage,
+        pageSize: this.pageSize,
+        sortName: "created_date",
+        sortOrder: "desc"
+      };
+      request({
+        url: "/transactionManagement/search",
+        method: "post",
+        params: para
+      }).then(res => {
+        this.rows = res.data.list;
+        this.count = res.data.total;
+        this.currentPage = res.data.pageNum;
+      });
+    },
+    getRowDatas(currentRow, oldCurrentRow) {
+      this.row = currentRow;
+    },
     getIoType(val) {
       this.searchForm.ioType = val;
-    }
-  },
+    },
+    getWarehouse(val) {
+      this.searchForm.warehouse = val;
+    },
+    restFrm() {
+      this.searchForm = {};
+    },
+    //用户选择行的id存入数组
+    handleSelectionChange(rows) {
+      this.transactionIds = [];
+      rows.forEach(row => {
+        this.transactionIds.push(row.transactionId);
+      });
+    },
+    //收货形成库存,这里提交直接形成库存
+    createStock() {
+      if (this.transactionIds.length == 0) {
+        this.$message({
+          message: "请选择待收货的交易信息",
+          type: "warning"
+        });
+        return false;
+      }
 
-  watch: {}
+      this.$confirm("确定接收且形成库存, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(() => {
+        let para = {
+          transactionIds: JSON.stringify(this.transactionIds)
+        };
+        request({
+          url: "/transactionManagement/createStock",
+          method: "post",
+          params: para
+        }).then(res => {
+          this.$message({
+            message: res.data.msg,
+            type: res.data.code == "200" ? "success" : "error"
+          });
+          this.handleList();
+        });
+      });
+    }
+  }
 };
 </script>
 

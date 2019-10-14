@@ -5,7 +5,19 @@ const httpUrl = "http://39.105.17.99:8080/";
 
 //table表格中timestamp时间类型格式化
 function dateFormat(date) {
-  return moment(date).format("YYYY-MM-DD HH:mm:ss");
+  if (date == null || date == "" || typeof date == "undefined") {
+    return "";
+  } else {
+    return moment(date).format("YYYY-MM-DD HH:mm:ss");
+  }
+}
+
+function dateFormatYYYYMMDD(date) {
+  if (date == null || date == "" || typeof date == "undefined") {
+    return "";
+  } else {
+    return moment(date).format("YYYY-MM-DD");
+  }
 }
 
 /*
@@ -46,6 +58,7 @@ export function closeTagAndGoBack(tagName, router) {
 export default {
   httpUrl,
   dateFormat,
+  dateFormatYYYYMMDD,
   formFormat,
   closeTagAndGoBack
 };

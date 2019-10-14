@@ -72,7 +72,15 @@ export const constantRouterMap = [{
         path: '/transactionManagement',
         component: resolve => require(['../components/page/MaterialTransSearch.vue'], resolve),
         meta: {
-            title: '交易管理'
+            title: '交易信息管理'
+        }
+    },
+
+    {
+        path: '/storageManagement',
+        component: resolve => require(['../components/page/MaterialStoreageSearch.vue'], resolve),
+        meta: {
+            title: '库存信息管理'
         }
     },
     {
@@ -80,6 +88,13 @@ export const constantRouterMap = [{
         component: resolve => require(['../components/page/PoSearch.vue'], resolve),
         meta: {
             title: 'PO信息管理'
+        }
+    },
+    {
+        path: '/orderManagement',
+        component: resolve => require(['../components/page/OrderSearch.vue'], resolve),
+        meta: {
+            title: '订单信息管理'
         }
     },
     {

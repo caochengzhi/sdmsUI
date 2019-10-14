@@ -6,14 +6,18 @@
           <el-button-group>
             <el-button
               type="primary"
-              icon="el-icon-lx-add"
+              icon="el-icon-edit-outline"
               v-has="'poManagement-input'"
               @click="addPo"
             >PO手工录入</el-button>
-            <el-button type="primary" icon="el-icon-lx-add" @click="autoCreateTransInfo">自动创建发车信息</el-button>
             <el-button
               type="primary"
-              icon="el-icon-lx-add"
+              icon="el-icon-circle-plus-outline"
+              @click="autoCreateTransInfo"
+            >自动创建发车信息</el-button>
+            <el-button
+              type="primary"
+              icon="el-icon-circle-plus-outline"
               v-has="'poManagement-create'"
               @click="handCreateTransInfo"
             >手工创建发车信息</el-button>
@@ -106,19 +110,20 @@
       @selection-change="handleSelectionChange"
     >
       <el-table-column fixed type="selection" width="55"></el-table-column>
-      <el-table-column fixed prop="poNumber" label="PO" show-overflow-tooltip width="190">
+      <el-table-column fixed type="index" label="序号" width="55"></el-table-column>
+      <el-table-column fixed prop="poNumber" label="PO" show-overflow-tooltip width="160">
         <template slot-scope="scope">
           <el-button type="text" @click="handleView(scope.$index, scope.row)">{{scope.row.poNumber}}</el-button>
         </template>
       </el-table-column>
+      <el-table-column fixed prop="item" label="产品名称"></el-table-column>
       <el-table-column fixed prop="poType" label="采购类型"></el-table-column>
-      <el-table-column fixed prop="vendor" label="供应商"></el-table-column>
+      <el-table-column fixed prop="vendor" label="供应商" width="100"></el-table-column>
       <el-table-column prop="totalAmount" label="采购金额/元" width="100"></el-table-column>
       <el-table-column prop="buyer" label="采购员"></el-table-column>
       <el-table-column prop="agent" label="代办人"></el-table-column>
       <el-table-column prop="agentPay" label="其他费用/元" width="100"></el-table-column>
-      <el-table-column prop="item" label="产品名称"></el-table-column>
-      <el-table-column prop="originPlace" label="产地"></el-table-column>
+      <el-table-column prop="originPlaceName" label="产地"></el-table-column>
       <el-table-column prop="netWeight" label="净重"></el-table-column>
       <el-table-column prop="grossWeight" label="毛重"></el-table-column>
       <el-table-column prop="settlementWeight" label="结算重量"></el-table-column>
@@ -173,7 +178,7 @@
         <el-form-item label="到货仓库" prop="warehouse" :label-width="formLabelWidth">
           <dict-select @getDictVal="getWarehouse" v-bind:dictCode="'warehouse'"></dict-select>
         </el-form-item>
-        <el-form-item label="发货日期" prop="shipDate" :label-width="formLabelWidth">
+        <el-form-item label="发车日期" prop="shipDate" :label-width="formLabelWidth">
           <el-date-picker
             v-model="form.shipDate"
             align="right"
@@ -193,6 +198,9 @@
             :picker-options="picker1Options"
           ></el-date-picker>
         </el-form-item>
+        <el-form-item label="备注" prop="remarks" :label-width="formLabelWidth">
+          <el-input v-model="form.remarks"></el-input>
+        </el-form-item>
         <el-input v-model="form.dictId" type="hidden"></el-input>
         <el-input v-model="form.organizationId" type="hidden"></el-input>
       </el-form>
@@ -202,11 +210,12 @@
       </div>
     </el-dialog>
     <!--table-->
-    <el-dialog title="PO行明细" :visible.sync="dialogTableVisible" center>
+    <el-dialog title="PO行明细" :visible.sync="dialogTableVisible" center width="55%">
       <el-table :data="gridData">
         <el-table-column property="specificName" label="规格"></el-table-column>
         <el-table-column property="pieceNum" label="件数"></el-table-column>
         <el-table-column property="weight" label="重量"></el-table-column>
+        <el-table-column property="isShip" label="是否已发车"></el-table-column>
         <el-table-column property="unitPrice" label="单价"></el-table-column>
         <el-table-column property="remarks" label="备注" width="200"></el-table-column>
       </el-table>
@@ -236,13 +245,15 @@ export default {
         carNumber: null,
         warehouse: null,
         shipDate: null,
+        remarks: null,
         scheduledArrivalDate: null,
-        poHeaderIds: []
+        poHeaderIds: null
       },
       dialogTableVisible: false,
       dialogFormVisible: false,
       gridData: [],
       itemOptions: [],
+      temp_poHeaderIds: [],
       options: [
         {
           value: "N",
@@ -384,6 +395,7 @@ export default {
         this.currentPage = res.data.pageNum;
       });
     },
+    //自动创建发车信息
     createTransInfos(formName) {
       if (this.form.warehouse == null || this.form.warehouse == "") {
         this.$message({
@@ -394,15 +406,19 @@ export default {
       }
       this.$refs[formName].validate(valid => {
         if (valid) {
+          this.form.poHeaderIds = JSON.stringify(this.temp_poHeaderIds);
           request({
-            url: "/dictManagement/saveDictType",这个地址要改，后台要新建服务
+            url: "/transactionManagement/createMaterialTransactions",
             method: "post",
-            params: this.form 这个里面有个headerid数组记得要处理 //表单日期格式化
+            params: this.form
           }).then(res => {
             this.$message({
               message: res.data.msg,
               type: res.data.code == "200" ? "success" : "error"
             });
+            if (res.data.code == "200") {
+              this.dialogFormVisible = false;
+            }
           });
         }
       });
@@ -411,7 +427,7 @@ export default {
       this.$router.push({ path: "addPoinfo" });
     },
     autoCreateTransInfo() {
-      if (this.form.poHeaderIds.length == 0) {
+      if (this.temp_poHeaderIds.length == 0) {
         this.$message({
           message: "请选择需创建发车信息的PO行",
           type: "warning"
@@ -451,10 +467,11 @@ export default {
       });
       this.dialogTableVisible = true;
     },
+    //用户选择行的id存入数组
     handleSelectionChange(rows) {
-      this.form.poHeaderIds = [];
+      this.temp_poHeaderIds = [];
       rows.forEach(row => {
-        this.form.poHeaderIds.push(row.headerId);
+        this.temp_poHeaderIds.push(row.headerId);
       });
     }
   }

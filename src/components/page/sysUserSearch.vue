@@ -108,7 +108,6 @@ export default {
       this.handleUserList();
     },
     handleUserList() {
-      debugger;
       let para = {
         pageNum: this.currentPage,
         pageSize: this.pageSize,
