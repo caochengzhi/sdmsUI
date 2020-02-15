@@ -4,7 +4,7 @@
       <el-form ref="form" :model="form" label-width="auto">
         <!-- <h4 style="color:#606266">基本信息</h4>
         <hr align="center" size="1">-->
-        <br>
+        <br />
         <el-form-item>
           <el-row :gutter="10">
             <el-col :xs="8" :sm="6" :md="2" :lg="7" :xl="1">

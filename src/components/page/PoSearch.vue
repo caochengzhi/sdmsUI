@@ -1,28 +1,28 @@
 <template>
   <div class="container">
     <div>
-      <el-form ref="form" :model="searchForm" label-width="auto">
-        <el-form-item align="right">
-          <el-button-group>
-            <el-button
-              type="primary"
-              icon="el-icon-edit-outline"
-              v-has="'poManagement-input'"
-              @click="addPo"
-            >PO手工录入</el-button>
-            <el-button
-              type="primary"
-              icon="el-icon-circle-plus-outline"
-              @click="autoCreateTransInfo"
-            >自动创建发车信息</el-button>
-            <el-button
-              type="primary"
-              icon="el-icon-circle-plus-outline"
-              v-has="'poManagement-create'"
-              @click="handCreateTransInfo"
-            >手工创建发车信息</el-button>
-          </el-button-group>
-        </el-form-item>
+      <div align="right" style="padding-bottom:5px;">
+        <el-button-group>
+          <el-button
+            type="primary"
+            icon="el-icon-edit-outline"
+            v-has="'poManagement-input'"
+            @click="addPo"
+          >PO手工录入</el-button>
+          <el-button
+            type="primary"
+            icon="el-icon-circle-plus-outline"
+            @click="autoCreateTransInfo"
+          >自动创建发车信息</el-button>
+          <el-button
+            type="primary"
+            icon="el-icon-circle-plus-outline"
+            v-has="'poManagement-create'"
+            @click="handCreateTransInfo"
+          >手工创建发车信息</el-button>
+        </el-button-group>
+      </div>
+      <el-form ref="searchForm" :model="searchForm" label-width="auto">
         <el-row :gutter="50">
           <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
             <el-form-item label="PO：">
@@ -85,18 +85,18 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item align="right">
-          <el-button-group>
-            <el-button
-              type="primary"
-              icon="el-icon-lx-search"
-              v-has="'poManagement-search'"
-              @click="handlePoList"
-            >查 询</el-button>
-            <el-button type="primary" @click="restFrm" icon="el-icon-lx-forward">重 置</el-button>
-          </el-button-group>
-        </el-form-item>
       </el-form>
+      <div align="right" style="padding-bottom:5px;">
+        <el-button-group>
+          <el-button
+            type="primary"
+            icon="el-icon-lx-search"
+            v-has="'poManagement-search'"
+            @click="handlePoList"
+          >查 询</el-button>
+          <el-button type="primary" @click="restFrm" icon="el-icon-lx-forward">重 置</el-button>
+        </el-button-group>
+      </div>
     </div>
     <el-table
       :data="rows"

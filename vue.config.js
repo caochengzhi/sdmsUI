@@ -1,11 +1,11 @@
 const webpack = require('webpack')
 module.exports = {
-    baseUrl: './',
-    baseUrl: process.env.NODE_ENV === 'production' ? '/honest/' : '/',
+    baseUrl: '',
+    //baseUrl: process.env.NODE_ENV === 'production' ? '/sdms/' : '/',
     productionSourceMap: false,
     devServer: {
-        port: 8088, // 端口号
-        host: '127.0.0.1',
+        port: 8080, // 端口号
+        host: 'localhost',
         https: false, // https:{type:Boolean}
         open: true, //配置自动启动浏览器
         proxy: {

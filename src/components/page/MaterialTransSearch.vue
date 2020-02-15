@@ -1,17 +1,17 @@
 <template>
   <div class="container">
     <div>
+      <div align="right" style="padding-bottom:5px;">
+        <el-button-group>
+          <el-button
+            type="primary"
+            icon="el-icon-circle-check-outline"
+            v-has="'transactionManagement-createStock'"
+            @click="createStock"
+          >收货</el-button>
+        </el-button-group>
+      </div>
       <el-form :model="searchForm" label-width="auto">
-        <el-form-item align="right">
-          <el-button-group>
-            <el-button
-              type="primary"
-              icon="el-icon-circle-check-outline"
-              v-has="'transactionManagement-createStock'"
-              @click="createStock"
-            >收货</el-button>
-          </el-button-group>
-        </el-form-item>
         <el-row :gutter="50">
           <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
             <el-form-item label="产品：">
@@ -67,18 +67,18 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item align="right">
-          <el-button-group>
-            <el-button
-              type="primary"
-              icon="el-icon-lx-search"
-              v-has="'transactionManagement-search'"
-              @click="handleList"
-            >查 询</el-button>
-            <el-button type="primary" @click="restFrm" icon="el-icon-lx-forward">重 置</el-button>
-          </el-button-group>
-        </el-form-item>
       </el-form>
+      <div align="right" style="padding-bottom:5px;">
+        <el-button-group>
+          <el-button
+            type="primary"
+            icon="el-icon-lx-search"
+            v-has="'transactionManagement-search'"
+            @click="handleList"
+          >查 询</el-button>
+          <el-button type="primary" @click="restFrm" icon="el-icon-lx-forward">重 置</el-button>
+        </el-button-group>
+      </div>
     </div>
     <el-table
       :data="rows"

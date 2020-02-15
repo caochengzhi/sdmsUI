@@ -5,8 +5,8 @@
       <el-tooltip placement="top">
         <div slot="content">
           规格明细的总件数相加需等于PO总件数
-          <br>规则明细的总重量相加需等于PO净重
-          <br>规格、件数、重量、单价不允许为空
+          <br />规则明细的总重量相加需等于PO净重
+          <br />规格、件数、重量、单价不允许为空
         </div>
         <el-button align="right" icon="el-icon-question">规则说明</el-button>
       </el-tooltip>
@@ -21,9 +21,9 @@
       stripe
     >
       <el-table-column label="序号" type="index" width="60" align="center"></el-table-column>
-      <el-table-column prop="specificId" label="规格">
+      <el-table-column prop="itemGradeId" label="产品等级">
         <template slot-scope="scope">
-          <el-select v-model="scope.row.specificId" placeholder="请选择(必填)">
+          <el-select v-model="scope.row.itemGradeId" placeholder="请选择(必填)">
             <el-option
               v-for="item in options"
               :key="item.value"
@@ -94,7 +94,7 @@ export default {
     };
   },
   mounted() {
-    getDictDatasByDictCode("standards").then(response => {
+    getDictDatasByDictCode("itemGrades").then(response => {
       this.options = response.data.map(item => {
         return {
           value: item.id,
@@ -107,7 +107,7 @@ export default {
     //添加行数
     addLine() {
       var newValue = {
-        specificId: null,
+        itemGradeId: null,
         pieceNum: null,
         unitPrice: null,
         weight: null,

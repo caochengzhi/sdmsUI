@@ -28,7 +28,7 @@
                 placeholder="请输入验证码"
                 @keyup.enter.native="submitForm"
               >
-                <el-button slot="prepend" icon="el-icon-lx-pic"/>
+                <el-button slot="prepend" icon="el-icon-lx-pic" />
               </el-input>
             </el-col>
             <el-col :span="1">&nbsp;</el-col>
@@ -39,7 +39,7 @@
                 style="height: 30px;width: 100%;"
                 @click="getVerifyCode"
                 title="看不清，点击换一张"
-              >
+              />
             </el-col>
           </el-row>
           <p style="color:red">{{errorMsg}}</p>

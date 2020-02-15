@@ -38,20 +38,21 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item align="right">
-          <el-button-group>
-            <el-button
-              type="primary"
-              icon="el-icon-lx-search"
-              v-has="'logManagement-search'"
-              @click="handleUserList"
-            >查 询</el-button>
-            <el-button type="primary" @click="restFrm" icon="el-icon-lx-forward">重 置</el-button>
-          </el-button-group>
-        </el-form-item>
       </el-form>
+      <div align="right" style="padding-bottom:5px;">
+        <el-button-group>
+          <el-button
+            type="primary"
+            icon="el-icon-lx-search"
+            v-has="'logManagement-search'"
+            @click="handleUserList"
+          >查 询</el-button>
+          <el-button type="primary" @click="restFrm" icon="el-icon-lx-forward">重 置</el-button>
+        </el-button-group>
+      </div>
     </div>
     <el-table
+      v-loading="loading"
       :data="rows"
       border
       height="300"
@@ -109,6 +110,7 @@ export default {
           label: "DELETE"
         }
       ],
+      loading: false,
       currentPage: 1, //初始页
       pageSize: 30, //每页的数据
       count: 0,
@@ -171,6 +173,7 @@ export default {
       return this.COMMON.dateFormat(date);
     },
     handleUserList() {
+      this.loading = true;
       var _searchData = null;
       if (this.searchForm.selectDatas != null) {
         _searchData = JSON.stringify(this.searchForm.selectDatas);
@@ -192,6 +195,7 @@ export default {
         this.rows = res.data.list;
         this.count = res.data.total;
         this.currentPage = res.data.pageNum;
+        this.loading = false;
       });
     }
   }

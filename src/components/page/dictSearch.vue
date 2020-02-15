@@ -14,29 +14,29 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item align="right">
-          <el-button-group>
-            <el-button
-              type="primary"
-              icon="el-icon-lx-search"
-              v-has="'dictManagement-search'"
-              @click="handleDictList"
-            >查 询</el-button>
-            <el-button
-              type="primary"
-              icon="el-icon-lx-add"
-              v-has="'dictManagement-add'"
-              @click="addDictType"
-            >新 增</el-button>
-            <el-button
-              type="primary"
-              icon="el-icon-lx-settings"
-              v-has="'dictManagement-modify'"
-              @click="modifyDictType"
-            >修 改</el-button>
-          </el-button-group>
-        </el-form-item>
       </el-form>
+      <div align="right" style="padding-bottom:5px;">
+        <el-button-group>
+          <el-button
+            type="primary"
+            icon="el-icon-lx-search"
+            v-has="'dictManagement-search'"
+            @click="handleDictList"
+          >查 询</el-button>
+          <el-button
+            type="primary"
+            icon="el-icon-lx-add"
+            v-has="'dictManagement-add'"
+            @click="addDictType"
+          >新 增</el-button>
+          <el-button
+            type="primary"
+            icon="el-icon-lx-settings"
+            v-has="'dictManagement-modify'"
+            @click="modifyDictType"
+          >修 改</el-button>
+        </el-button-group>
+      </div>
     </div>
 
     <el-table
@@ -80,7 +80,7 @@
     <div>
       <!-- Form -->
       <el-dialog title="字典管理" :visible.sync="dialogFormVisible" width="30%">
-        <el-form ref="form" :model="form">
+        <el-form ref="form" :model="form" :rules="rules">
           <el-form-item label="字典名称" prop="dictName" :label-width="formLabelWidth">
             <el-input v-model="form.dictName"></el-input>
           </el-form-item>
@@ -91,14 +91,14 @@
             <el-input v-model="form.remarks"></el-input>
           </el-form-item>
           <el-form-item label="是否生效" prop="isValid" :label-width="formLabelWidth">
-            <el-switch v-model="form.isValid" active-value="Y" inactive-value="N"></el-switch>
+            <el-switch v-model="form.isValid" active-value="Y" inactive-value="Y"></el-switch>
           </el-form-item>
           <el-input v-model="form.dictId" type="hidden"></el-input>
           <el-input v-model="form.organizationId" type="hidden"></el-input>
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="dialogFormVisible = false">取 消</el-button>
-          <el-button type="primary" @click="saveDictType">保 存</el-button>
+          <el-button type="primary" @click="saveDictType('form')">保 存</el-button>
         </div>
       </el-dialog>
 
@@ -125,14 +125,6 @@ export default {
         dictName: null,
         dictCode: null
       },
-      currentPage: 1, //初始页
-      pageSize: 15, //每页的数据
-      count: 0,
-      rows: [],
-      gridData: [],
-      row: null,
-      dialogTableVisible: false,
-      dialogFormVisible: false,
       form: {
         dictId: null,
         dictName: null,
@@ -141,6 +133,18 @@ export default {
         organizationId: null,
         remarks: null
       },
+      rules: {
+        dictName: [{ required: true, message: "不允许为空" }],
+        dictCode: [{ required: true, message: "不允许为空" }]
+      },
+      currentPage: 1, //初始页
+      pageSize: 15, //每页的数据
+      count: 0,
+      rows: [],
+      gridData: [],
+      row: null,
+      dialogTableVisible: false,
+      dialogFormVisible: false,
       formLabelWidth: "80px"
     };
   },
@@ -194,19 +198,23 @@ export default {
       //this.form = this.row;
       this.form = Object.assign({}, this.row);
     },
-    saveDictType() {
-      request({
-        url: "/dictManagement/saveDictType",
-        method: "post",
-        params: this.COMMON.formFormat(this.form) //表单日期格式化
-      }).then(res => {
-        this.$message({
-          message: res.data.msg,
-          type: res.data.code == "200" ? "success" : "error"
-        });
-        this.handleDictList();
+    saveDictType(formName) {
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          request({
+            url: "/dictManagement/saveDictType",
+            method: "post",
+            params: this.COMMON.formFormat(this.form) //表单日期格式化
+          }).then(res => {
+            this.$message({
+              message: res.data.msg,
+              type: res.data.code == "200" ? "success" : "error"
+            });
+            this.handleDictList();
+          });
+          this.dialogFormVisible = false;
+        }
       });
-      this.dialogFormVisible = false;
     },
     handleView(index, row) {
       getDictDatasByDictId(row.dictId).then(response => {
@@ -220,9 +228,7 @@ export default {
         query: { dictId: row.dictId }
       });
     }
-  },
-
-  watch: {}
+  }
 };
 </script>
 

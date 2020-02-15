@@ -27,7 +27,7 @@ export function getResourcesByRoleId(roleId) {
 }
 
 /*
- * 获取指定字典的明细键值对 
+ * 获取指定字典的明细ID键值对 
  * @reutrn list<SysDictDatas>
  */
 export function getDictDatasByDictId(dictId) {
@@ -38,6 +38,9 @@ export function getDictDatasByDictId(dictId) {
     })
 }
 
+/*
+ * 获取字典明细code键值对
+ */
 export function getDictDatasByDictCode(dictCode) {
     return request({
         url: "/baseSearch/getDictDatasByDictCode",
@@ -46,20 +49,30 @@ export function getDictDatasByDictCode(dictCode) {
     })
 }
 
+/*
+ * 获取订单字段列表
+ */
+export function getOrderFieldList() {
+    return request({
+        url: "/baseSearch/getOrderFieldList",
+        method: "get"
+    })
+}
+
 export function getItems() {
     return request({
-        url:"/baseSearch/getItems",
-        method:"get"
+        url: "/baseSearch/getItems",
+        method: "get"
     })
 }
 
 /**
  * 通过PO头查询对应的PO行数据
  */
-export function getPoLinesByHeadId(headerId){
+export function getPoLinesByHeadId(headerId) {
     return request({
-        url:"/poManager/getPoLinesByHeadId",
-        method:"get",
+        url: "/poManager/getPoLinesByHeadId",
+        method: "get",
         params: { headerId: headerId }
     })
 }

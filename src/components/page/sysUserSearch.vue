@@ -14,29 +14,29 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item align="right">
-          <el-button-group>
-            <el-button
-              type="primary"
-              icon="el-icon-lx-search"
-              v-has="'userManagement-search'"
-              @click="handleUserList"
-            >查 询</el-button>
-            <el-button
-              type="primary"
-              icon="el-icon-lx-add"
-              v-has="'userManagement-add'"
-              @click="addUser"
-            >新 增</el-button>
-            <el-button
-              type="primary"
-              icon="el-icon-lx-settings"
-              v-has="'userManagement-modify'"
-              @click="modifyUser"
-            >修 改</el-button>
-          </el-button-group>
-        </el-form-item>
       </el-form>
+      <div align="right" style="padding-bottom:5px;">
+        <el-button-group>
+          <el-button
+            type="primary"
+            icon="el-icon-lx-search"
+            v-has="'userManagement-search'"
+            @click="handleUserList"
+          >查 询</el-button>
+          <el-button
+            type="primary"
+            icon="el-icon-lx-add"
+            v-has="'userManagement-add'"
+            @click="addUser"
+          >新 增</el-button>
+          <el-button
+            type="primary"
+            icon="el-icon-lx-settings"
+            v-has="'userManagement-modify'"
+            @click="modifyUser"
+          >修 改</el-button>
+        </el-button-group>
+      </div>
     </div>
     <el-table
       :data="rows"

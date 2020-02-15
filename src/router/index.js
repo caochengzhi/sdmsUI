@@ -55,6 +55,27 @@ export const constantRouterMap = [{
         }
     },
     {
+        path: '/itemManagement',
+        component: resolve => require(['../components/page/ItemSearch.vue'], resolve),
+        meta: {
+            title: '产品资料管理'
+        }
+    },
+    {
+        path: '/customerOrderExcelConfig',
+        component: resolve => require(['../components/page/CustomerOrderExcelConfig.vue'], resolve),
+        meta: {
+            title: '客户订单字段配置'
+        }
+    },
+    {
+        path: '/modifyItem',
+        component: resolve => require(['../components/page/ModifyItem.vue'], resolve),
+        meta: {
+            title: '编辑产品'
+        }
+    },
+    {
         path: '/modifyUser',
         component: resolve => require(['../components/page/ModifyUser.vue'], resolve),
         meta: {
@@ -75,12 +96,18 @@ export const constantRouterMap = [{
             title: '交易信息管理'
         }
     },
-
     {
         path: '/storageManagement',
         component: resolve => require(['../components/page/MaterialStoreageSearch.vue'], resolve),
         meta: {
             title: '库存信息管理'
+        }
+    },
+    {
+        path: '/productPlanManagement',
+        component: resolve => require(['../components/page/ProductPlanSearch.vue'], resolve),
+        meta: {
+            title: '生产计划管理'
         }
     },
     {

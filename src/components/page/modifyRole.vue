@@ -1,50 +1,48 @@
 
-  <<template>
-    <div class="container">
-    
-      <el-tabs v-model="activeName">
-        <el-tab-pane label="编辑角色" name="first">
-          <el-form ref="form" :model="form" label-width="auto">
+  <template>
+  <div class="container">
+    <el-tabs v-model="activeName">
+      <el-tab-pane label="编辑角色" name="first">
+        <el-form ref="form" :model="form" label-width="auto">
+          <el-row :gutter="10">
+            <el-col :xs="8" :sm="6" :md="2" :lg="7" :xl="1">
+              <el-form-item label="角色名称：">
+                <el-input v-model="form.roleName" placeholder="角色名称"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :xs="4" :sm="6" :md="10" :lg="2" :xl="11">&nbsp;</el-col>
+            <el-col :xs="8" :sm="6" :md="2" :lg="7" :xl="1">
+              <el-form-item label="角色编码：">
+                <el-input v-model="form.roleCode" placeholder="角色编码"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
 
-            <el-row :gutter="10">
-              <el-col :xs="8" :sm="6" :md="2" :lg="7" :xl="1">
-                <el-form-item label="角色名称：">
-                  <el-input v-model="form.roleName" placeholder="角色名称"></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :xs="4" :sm="6" :md="10" :lg="2" :xl="11">&nbsp;</el-col>
-              <el-col :xs="8" :sm="6" :md="2" :lg="7" :xl="1">
-                <el-form-item label="角色编码：">
-                  <el-input v-model="form.roleCode" placeholder="角色编码"></el-input>
-                </el-form-item>
-              </el-col>
-            </el-row>
+          <el-row :gutter="10">
+            <el-col :xs="8" :sm="6" :md="2" :lg="12" :xl="1">
+              <el-form-item label="备注信息：">
+                <el-input v-model="form.description" placeholder="备注信息"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
 
-            <el-row :gutter="10">
-              <el-col :xs="8" :sm="6" :md="2" :lg="12" :xl="1">
-                <el-form-item label="备注信息：">
-                  <el-input v-model="form.description" placeholder="备注信息"></el-input>
-                </el-form-item>
-              </el-col>
-            </el-row>
+          <el-row :gutter="10">
+            <el-col>
+              <el-form-item label="用户选择：">
+                <el-transfer
+                  filterable
+                  :titles="['待选用户','已选用户']"
+                  :filter-method="filterMethod"
+                  filter-placeholder="请输入用户"
+                  v-model="checkUserIds"
+                  :data="userData"
+                  @change="handleUserChange"
+                ></el-transfer>
+              </el-form-item>
+            </el-col>
+          </el-row>
 
-            <el-row :gutter="10">
-              <el-col>
-                <el-form-item label="用户选择：">
-                  <el-transfer
-                    filterable
-                    :titles="['待选用户','已选用户']"
-                    :filter-method="filterMethod"
-                    filter-placeholder="请输入用户"
-                    v-model="checkUserIds"
-                    :data="userData"
-                    @change="handleUserChange"
-                  ></el-transfer>
-                </el-form-item>
-              </el-col>
-            </el-row>
-
-            <el-form-item align="right">
+          <el-form-item align="right">
             <el-popover placement="top" width="160" v-model="visible">
               <p>确定执行此操作？</p>
               <div style="text-align: center; margin: 0">
@@ -53,36 +51,34 @@
               </div>
               <el-button type="primary" slot="reference" icon="el-icon-lx-roundcheck">保存</el-button>
             </el-popover>
-
-            </el-form-item>
-            <el-input v-model="form.roleId" type="hidden"></el-input>
-            <el-input v-model="form.organizationId" type="hidden"></el-input>
-            <el-input v-model="form.userIds" type="hidden"></el-input>
-            <el-input v-model="form.resourceIds" type="hidden"></el-input>
-          </el-form>
-
-        </el-tab-pane>
-        <el-tab-pane label="编辑权限" name="second">
-          <el-row :gutter="10">
-            <el-col>
-                <el-tree
-                  :data="treeData"
-                  show-checkbox
-                  default-expand-all
-                  node-key="id"
-                  draggable
-                  :default-checked-keys="checkResourceIds"
-                  ref="tree"
-                  highlight-current
-                  :props="defaultProps"
-                  @check-change="getResourceChecked"
-                ></el-tree>
-            </el-col>
-          </el-row>
-        </el-tab-pane>
-      </el-tabs>
-    </div>
-  </template>
+          </el-form-item>
+          <el-input v-model="form.roleId" type="hidden"></el-input>
+          <el-input v-model="form.organizationId" type="hidden"></el-input>
+          <el-input v-model="form.userIds" type="hidden"></el-input>
+          <el-input v-model="form.resourceIds" type="hidden"></el-input>
+        </el-form>
+      </el-tab-pane>
+      <el-tab-pane label="编辑权限" name="second">
+        <el-row :gutter="10">
+          <el-col>
+            <el-tree
+              :data="treeData"
+              show-checkbox
+              default-expand-all
+              node-key="id"
+              draggable
+              :default-checked-keys="checkResourceIds"
+              ref="tree"
+              highlight-current
+              :props="defaultProps"
+              @check-change="getResourceChecked"
+            ></el-tree>
+          </el-col>
+        </el-row>
+      </el-tab-pane>
+    </el-tabs>
+  </div>
+</template>
   
   <script>
 import request from "@/utils/request";

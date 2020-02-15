@@ -1,10 +1,16 @@
 <template>
   <div class="container">
-    <el-button-group>
-      <el-button type="primary" icon="el-icon-lx-add" @click="addLine">插入行</el-button>
-      <el-button type="primary" icon="el-icon-lx-roundcheck" @click="save">保 存</el-button>
-    </el-button-group>
-    <br>
+    <div align="right" style="padding-bottom:5px;">
+      <el-button-group>
+        <el-button type="primary" icon="el-icon-lx-add" @click="addLine">插入行</el-button>
+        <el-button
+          type="primary"
+          icon="el-icon-lx-roundcheck"
+          @click="save"
+          v-has="'dictManagement-save'"
+        >保 存</el-button>
+      </el-button-group>
+    </div>
     <el-table
       :data="tableData"
       style="width: 100%"
