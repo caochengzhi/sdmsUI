@@ -81,6 +81,7 @@
       </div>
     </div>
     <el-table
+      v-loading="loading"
       :data="rows"
       border
       height="300"
@@ -129,7 +130,7 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="currentPage"
-        :page-sizes="[15, 50, 100, 200]"
+        :page-sizes="[30, 50, 100, 200]"
         :page-size="pageSize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="count"
@@ -152,11 +153,14 @@ export default {
         shipDate: null,
         carNumber: null,
         ioType: null,
-        ioStatus: null
+        ioStatus: null,
+        sortName: "created_date",
+        sortOrder: "desc"
       },
       currentPage: 1, //初始页
-      pageSize: 15, //每页的数据
+      pageSize: 30, //每页的数据
       count: 0,
+      loading: false,
       rows: [],
       transactionIds: [],
       row: null,
@@ -236,26 +240,18 @@ export default {
       this.handleList();
     },
     handleList() {
-      let para = {
-        itemId: this.searchForm.itemId,
-        warehouse: this.searchForm.warehouse,
-        shipDate: this.searchForm.shipDate,
-        carNumber: this.searchForm.carNumber,
-        ioType: this.searchForm.ioType,
-        ioStatus: this.searchForm.ioStatus,
-        pageNum: this.currentPage,
-        pageSize: this.pageSize,
-        sortName: "created_date",
-        sortOrder: "desc"
-      };
+      this.loading = true;
+      this.$set(this.searchForm, "pageNum", this.currentPage);
+      this.$set(this.searchForm, "pageSize", this.pageSize);
       request({
         url: "/transactionManagement/search",
         method: "post",
-        params: para
+        params: this.searchForm
       }).then(res => {
         this.rows = res.data.list;
         this.count = res.data.total;
         this.currentPage = res.data.pageNum;
+        this.loading = false;
       });
     },
     getRowDatas(currentRow, oldCurrentRow) {

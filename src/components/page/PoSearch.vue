@@ -99,6 +99,7 @@
       </div>
     </div>
     <el-table
+      v-loading="loading"
       :data="rows"
       border
       height="300"
@@ -156,7 +157,7 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="currentPage"
-        :page-sizes="[15, 50, 100, 200]"
+        :page-sizes="[30, 50, 100, 200]"
         :page-size="pageSize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="count"
@@ -237,7 +238,9 @@ export default {
         dateOfPurchase: null,
         itemId: null,
         poType: null,
-        isClosed: null
+        isClosed: null,
+        sortName: "created_date",
+        sortOrder: "desc"
       },
       form: {
         driverName: null,
@@ -251,6 +254,7 @@ export default {
       },
       dialogTableVisible: false,
       dialogFormVisible: false,
+      loading: false,
       gridData: [],
       itemOptions: [],
       temp_poHeaderIds: [],
@@ -338,7 +342,7 @@ export default {
       },
       formLabelWidth: "110px",
       currentPage: 1, //初始页
-      pageSize: 15, //每页的数据
+      pageSize: 30, //每页的数据
       count: 0,
       rows: [],
       row: null
@@ -373,26 +377,18 @@ export default {
       this.handlePoList();
     },
     handlePoList() {
-      let para = {
-        poNumber: this.searchForm.poNumber,
-        originPlace: this.searchForm.originPlace,
-        dateOfPurchase: this.searchForm.dateOfPurchase,
-        itemId: this.searchForm.itemId,
-        poType: this.searchForm.poType,
-        isClosed: this.searchForm.isClosed,
-        pageNum: this.currentPage,
-        pageSize: this.pageSize,
-        sortName: "created_date",
-        sortOrder: "desc"
-      };
+      this.loading = true;
+      this.$set(this.searchForm, "pageNum", this.currentPage);
+      this.$set(this.searchForm, "pageSize", this.pageSize);
       request({
         url: "/poManager/search",
         method: "post",
-        params: para
+        params: this.searchForm
       }).then(res => {
         this.rows = res.data.list;
         this.count = res.data.total;
         this.currentPage = res.data.pageNum;
+        this.loading = false;
       });
     },
     //自动创建发车信息

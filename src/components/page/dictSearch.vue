@@ -40,6 +40,7 @@
     </div>
 
     <el-table
+      v-loading="loading"
       :data="rows"
       border
       height="300"
@@ -82,7 +83,7 @@
       <el-dialog title="字典管理" :visible.sync="dialogFormVisible" width="30%">
         <el-form ref="form" :model="form" :rules="rules">
           <el-form-item label="字典名称" prop="dictName" :label-width="formLabelWidth">
-            <el-input v-model="form.dictName"></el-input>
+            <el-input v-model="form.dictName" :disabled="typeof this.form.dictId != 'undefined'"></el-input>
           </el-form-item>
           <el-form-item label="字典编码" prop="dictCode" :label-width="formLabelWidth">
             <el-input v-model="form.dictCode" :disabled="typeof this.form.dictId != 'undefined'"></el-input>
@@ -140,6 +141,7 @@ export default {
       currentPage: 1, //初始页
       pageSize: 15, //每页的数据
       count: 0,
+      loading: false,
       rows: [],
       gridData: [],
       row: null,
@@ -166,20 +168,18 @@ export default {
       this.handleDictList();
     },
     handleDictList() {
-      let para = {
-        pageNum: this.currentPage,
-        pageSize: this.pageSize,
-        dictName: this.searchForm.dictName,
-        dictCode: this.searchForm.dictCode
-      };
+      this.loading = true;
+      this.$set(this.searchForm, "pageNum", this.currentPage);
+      this.$set(this.searchForm, "pageSize", this.pageSize);
       request({
         url: "/dictManagement/search",
         method: "post",
-        params: para
+        params: this.searchForm
       }).then(res => {
         this.rows = res.data.list;
         this.count = res.data.total;
         this.currentPage = res.data.pageNum;
+        this.loading = false;
       });
     },
     addDictType() {

@@ -4,7 +4,7 @@
     <div class="collapse-btn" @click="collapseChage">
       <i class="el-icon-menu"></i>
     </div>
-    <div class="logo">金丰公社物流管理系统</div>
+    <div class="logo">河马供应链管理系统</div>
     <div class="header-right">
       <div class="header-user-con">
         <!-- 全屏显示 -->
@@ -24,7 +24,7 @@
         </div>
         <!-- 用户头像 -->
         <div class="user-avator">
-          <img src="../../assets/img/img.jpg">
+          <img src="../../assets/img/img.jpg" />
         </div>
         <!-- 用户名下拉菜单 -->
         <el-dropdown class="user-name" trigger="click" @command="handleCommand">

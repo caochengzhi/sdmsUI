@@ -60,7 +60,8 @@
       </el-tab-pane>
       <el-tab-pane label="编辑权限" name="second">
         <el-row :gutter="10">
-          <el-col>
+          <el-col class="wraper">
+            <el-backtop target=".wraper"></el-backtop>
             <el-tree
               :data="treeData"
               show-checkbox
@@ -217,5 +218,9 @@ export default {
   }
 };
 </script>
-  <style lang='' scoped>
+<style scoped>
+.wraper {
+  height: 100vh;
+  overflow-x: hidden;
+}
 </style>

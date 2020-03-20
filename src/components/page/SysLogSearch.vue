@@ -1,4 +1,3 @@
-
 <template>
   <div class="container">
     <div>
@@ -26,7 +25,7 @@
           <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
             <el-form-item label="操作时间：">
               <el-date-picker
-                v-model="searchForm.selectDatas"
+                v-model="searchForm.pickDate"
                 type="datetimerange"
                 :picker-options="pickerOptions"
                 range-separator="至"
@@ -94,7 +93,7 @@ export default {
       searchForm: {
         loginName: null,
         operateType: null,
-        selectDatas: null
+        pickDate: null
       },
       options: [
         {
@@ -110,11 +109,11 @@ export default {
           label: "DELETE"
         }
       ],
-      loading: false,
       currentPage: 1, //初始页
       pageSize: 30, //每页的数据
       count: 0,
       rows: [],
+      loading: false,
       pickerOptions: {
         shortcuts: [
           {
@@ -174,23 +173,25 @@ export default {
     },
     handleUserList() {
       this.loading = true;
-      var _searchData = null;
-      if (this.searchForm.selectDatas != null) {
-        _searchData = JSON.stringify(this.searchForm.selectDatas);
+
+      this.$set(this.searchForm, "pageNum", this.currentPage);
+      this.$set(this.searchForm, "pageSize", this.pageSize);
+      this.$set(this.searchForm, "sortName", "created_date");
+      this.$set(this.searchForm, "sortOrder", "desc");
+      this.$set(this.searchForm, "selectDatas", "");
+
+      if (this.searchForm.pickDate != null) {
+        this.$set(
+          this.searchForm,
+          "selectDatas",
+          JSON.stringify(this.searchForm.pickDate)
+        );
       }
-      let para = {
-        pageNum: this.currentPage,
-        pageSize: this.pageSize,
-        loginName: this.searchForm.loginName,
-        operateType: this.searchForm.operateType,
-        sortName: "created_date",
-        sortOrder: "desc",
-        selectDatas: _searchData
-      };
+
       request({
         url: "/logManagement/search",
         method: "post",
-        params: para
+        params: this.searchForm
       }).then(res => {
         this.rows = res.data.list;
         this.count = res.data.total;
@@ -201,6 +202,4 @@ export default {
   }
 };
 </script>
-    <style lang='' scoped>
-</style>
 

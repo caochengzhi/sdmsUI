@@ -63,9 +63,13 @@
               <el-input v-model="scope.row.item" placeholder="产品" readonly></el-input>
             </template>
           </el-table-column>
-          <el-table-column prop="gradeId" label="产品等级">
+          <el-table-column prop="gradeId" label="产品等级(不允许修改)">
             <template slot-scope="scope">
-              <el-select v-model="scope.row.gradeId" placeholder="等级">
+              <el-select
+                v-model="scope.row.gradeId"
+                placeholder="等级"
+                @change="changeOption(scope.row)"
+              >
                 <el-option
                   v-for="item in gradeOptions"
                   :key="item.value"
@@ -75,9 +79,13 @@
               </el-select>
             </template>
           </el-table-column>
-          <el-table-column prop="specificId" label="包装规格">
+          <el-table-column prop="specificId" label="包装规格(不允许修改)">
             <template slot-scope="scope">
-              <el-select v-model="scope.row.specificId" placeholder="请选择(必填)">
+              <el-select
+                v-model="scope.row.specificId"
+                placeholder="请选择(必填)"
+                @change="changeOption(scope.row)"
+              >
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -87,9 +95,14 @@
               </el-select>
             </template>
           </el-table-column>
-          <el-table-column prop="remark" label="备注信息">
+          <el-table-column prop="remark" label="规格净重(斤)" width="100">
             <template slot-scope="scope">
-              <el-input v-model="scope.row.remarks" placeholder="备注"></el-input>
+              <el-input v-model="scope.row.netWeight" oninput="value=value.replace(/[^\d.]/g,'')"></el-input>
+            </template>
+          </el-table-column>
+          <el-table-column prop="remark" label="规格名称">
+            <template slot-scope="scope">
+              <el-input v-model="scope.row.specificCode" placeholder="规格名称"></el-input>
             </template>
           </el-table-column>
           <el-table-column prop="isValid" label="是否有效" width="75">
@@ -159,6 +172,16 @@ export default {
   },
 
   methods: {
+    changeOption(row) {
+      var id = row.id;
+      if (typeof id != "undefined") {
+        this.$message({
+          message: "无效操作！此数据修改无效！",
+          type: "error"
+        });
+        return;
+      }
+    },
     handleItemSpecificList() {
       let para = {
         itemId: this.itemForm.itemId
@@ -184,8 +207,8 @@ export default {
       this.tableData.push(newValue);
     },
     //删除行数
-    handleDelete(index) {
-      var id = this.tableData[index].id;
+    handleDelete(index, row) {
+      var id = row.id;
       if (typeof id != "undefined") {
         this.$message({
           message: "已保存数据，不允许删除，请做失效处理",

@@ -1,4 +1,3 @@
-
 <template>
   <div class="container">
     <div>
@@ -14,26 +13,72 @@
       </div>
       <el-form ref="form" :model="searchForm" label-width="auto">
         <el-row :gutter="50">
-          <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
+          <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
+            <el-form-item label="店铺选择:">
+              <dict-select @getDictVal="getSearchCustomerList" v-bind:dictCode="'customerList'"></dict-select>
+            </el-form-item>
+          </el-col>
+          <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
+            <el-form-item label="订单状态:">
+              <el-select v-model="searchForm.orderStatus" clearable placeholder="请选择">
+                <el-option
+                  v-for="item in orderOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
+            <el-form-item label="是否有效：">
+              <el-select v-model="searchForm.isValid" clearable placeholder="请选择">
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="50">
+          <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
             <el-form-item label="订单号：">
               <el-input v-model="searchForm.orderNo" placeholder="订单号"></el-input>
             </el-form-item>
           </el-col>
+          <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
+            <el-form-item label="订单导入时间：">
+              <el-date-picker
+                v-model="searchForm.pickDate"
+                type="datetimerange"
+                :picker-options="pickerOptions"
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                align="right"
+                value-format="timestamp"
+              ></el-date-picker>
+            </el-form-item>
+          </el-col>
         </el-row>
-        <el-form-item align="right">
-          <el-button-group>
-            <el-button
-              type="primary"
-              icon="el-icon-lx-search"
-              v-has="'transactionManagement-search'"
-              @click="handleList"
-            >查 询</el-button>
-            <el-button type="primary" @click="restFrm" icon="el-icon-lx-forward">重 置</el-button>
-          </el-button-group>
-        </el-form-item>
       </el-form>
+      <div align="right" style="padding-bottom:5px;">
+        <el-button-group>
+          <el-button
+            type="primary"
+            icon="el-icon-lx-search"
+            v-has="'orderManagement-search'"
+            @click="handleOrderList"
+          >查 询</el-button>
+          <el-button type="primary" @click="restFrm" icon="el-icon-lx-forward">重 置</el-button>
+        </el-button-group>
+      </div>
     </div>
     <el-table
+      v-loading="tabLoading"
       :data="rows"
       border
       height="300"
@@ -42,37 +87,58 @@
       element-loading-text="表格加载中..."
       stripe
     >
-      <el-table-column type="expand">
-        <template slot-scope="props">
-          <el-form label-position="left" inline class="demo-table-expand">
-            <el-form-item label="商品名称">
-              <span>{{ props.row.name }}</span>
-            </el-form-item>
-            <el-form-item label="所属店铺">
-              <span>{{ props.row.shop }}</span>
-            </el-form-item>
-            <el-form-item label="商品 ID">
-              <span>{{ props.row.id }}</span>
-            </el-form-item>
-            <el-form-item label="店铺 ID">
-              <span>{{ props.row.shopId }}</span>
-            </el-form-item>
-            <el-form-item label="商品分类">
-              <span>{{ props.row.category }}</span>
-            </el-form-item>
-            <el-form-item label="店铺地址">
-              <span>{{ props.row.address }}</span>
-            </el-form-item>
-            <el-form-item label="商品描述">
-              <span>{{ props.row.desc }}</span>
-            </el-form-item>
-          </el-form>
-        </template>
-      </el-table-column>
-      <el-table-column label="商品 ID" prop="id"></el-table-column>
-      <el-table-column label="商品名称" prop="name"></el-table-column>
-      <el-table-column label="描述" prop="desc"></el-table-column>
+      <el-table-column fixed type="index" label="序号" width="55" />
+      <el-table-column fixed prop="orderNo" label="系统订单号" show-overflow-tooltip width="130" />
+      <el-table-column fixed prop="customerName" label="商家" show-overflow-tooltip width="100" />
+      <el-table-column
+        fixed
+        prop="customerOrderNo"
+        label="客户订单号"
+        show-overflow-tooltip
+        width="120"
+      />
+      <el-table-column fixed prop="productName" show-overflow-tooltip label="商家货品" width="120" />
+      <el-table-column prop="itemGrade" label="等级" />
+      <el-table-column prop="itemSpecific" label="规格" />
+      <el-table-column prop="orderStatusDesc" label="订单状态" width="120" />
+      <el-table-column prop="consigneeAddress" show-overflow-tooltip label="收件人地址" width="200" />
+      <el-table-column prop="isValid" label="是否有效" width="80" />
+      <el-table-column prop="isReviewed" label="已审核" width="80" />
+      <el-table-column prop="isGeneratedExpressNo" label="已生成物流单号" width="80" />
+      <el-table-column prop="isPrinted" label="已打印" width="80" />
+      <el-table-column prop="isShipped" label="已发货" width="80" />
+      <el-table-column prop="isCreatedExpressInfo" label="已生成物流信息" width="80" />
+      <el-table-column prop="isCompleted" label="已关闭" width="80" />
+      <el-table-column prop="isCanceled" label="已撕单" width="80" />
+      <el-table-column prop="remarks" label="备注" show-overflow-tooltip width="200" />
+      <el-table-column prop="createdBy" label="创建人" width="120" />
+      <el-table-column
+        prop="createdDate"
+        label="创建时间"
+        :formatter="dateFormat"
+        sortable
+        width="150"
+      />
+      <el-table-column prop="lastUpdatedBy" label="更新人" width="120" />
+      <el-table-column
+        prop="lastUpdatedDate"
+        label="更新时间"
+        :formatter="dateFormat"
+        sortable
+        width="150"
+      />
     </el-table>
+    <div class="pagination">
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="[30, 50, 100, 200]"
+        :page-size="pageSize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="count"
+      ></el-pagination>
+    </div>
 
     <el-dialog title="订单导入 （每次上传文件不超3个）" :visible.sync="dialogFormVisible" width="550px">
       <el-form :model="inputForm" v-loading="loading" element-loading-text="订单导入中，请稍等...">
@@ -109,12 +175,20 @@
 <script>
 import request from "@/utils/request";
 import dictSelect from "@/components/common/DictDataSelectId.vue";
+import { getOrderStatus } from "@/utils/baseRequest";
 export default {
   name: "orderManager",
+  show: true,
   data() {
     return {
       searchForm: {
-        orderNo: null
+        orderNo: null,
+        customerId: null,
+        orderStatus: null,
+        isValid: null,
+        pickDate: null,
+        sortName: "created_date",
+        sortOrder: "desc"
       },
       inputForm: {
         customerId: null
@@ -123,27 +197,130 @@ export default {
       dialogFormVisible: false,
       formLabelWidth: "100px",
       loading: false,
-      dis: true,
-      rows: [
+      tabLoading: false,
+      currentPage: 1, //初始页
+      pageSize: 30, //每页的数据
+      count: 0,
+      rows: [],
+      orderOptions: [],
+      options: [
         {
-          id: "12987122",
-          name: "好滋好味鸡蛋仔",
-          category: "江浙小吃、小吃零食",
-          desc: "荷兰优质淡奶，奶香浓而不腻",
-          address: "上海市普陀区真北路",
-          shop: "王小虎夫妻店",
-          shopId: "10333"
+          value: "N",
+          label: "N"
+        },
+        {
+          value: "Y",
+          label: "Y"
+        },
+        {
+          value: "E",
+          label: "E"
         }
-      ]
+      ],
+      pickerOptions: {
+        shortcuts: [
+          {
+            text: "今天",
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setHours(0);
+              start.setMinutes(0);
+              start.setSeconds(0);
+              end.setHours(23);
+              end.setMinutes(59);
+              end.setSeconds(59);
+              start.setTime(start.getTime());
+              picker.$emit("pick", [start, end]);
+            }
+          },
+          {
+            text: "昨天",
+            onClick(picker) {
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 1);
+              const end = new Date();
+              end.setTime(end.getTime() - 3600 * 1000 * 24 * 1);
+              start.setHours(0);
+              start.setMinutes(0);
+              start.setSeconds(0);
+              end.setHours(23);
+              end.setMinutes(59);
+              end.setSeconds(59);
+              picker.$emit("pick", [start, end]);
+            }
+          },
+          {
+            text: "最近一周",
+            onClick(picker) {
+              const start = new Date();
+              const end = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+              start.setHours(0);
+              start.setMinutes(0);
+              start.setSeconds(0);
+              end.setHours(23);
+              end.setMinutes(59);
+              end.setSeconds(59);
+
+              picker.$emit("pick", [start, end]);
+            }
+          },
+          {
+            text: "最近一个月",
+            onClick(picker) {
+              const start = new Date();
+              const end = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              start.setHours(0);
+              start.setMinutes(0);
+              start.setSeconds(0);
+              end.setHours(23);
+              end.setMinutes(59);
+              end.setSeconds(59);
+
+              picker.$emit("pick", [start, end]);
+            }
+          },
+          {
+            text: "最近三个月",
+            onClick(picker) {
+              const start = new Date();
+              const end = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+              start.setHours(0);
+              start.setMinutes(0);
+              start.setSeconds(0);
+              end.setHours(23);
+              end.setMinutes(59);
+              end.setSeconds(59);
+
+              picker.$emit("pick", [start, end]);
+            }
+          }
+        ]
+      }
     };
   },
   components: {
     dictSelect
   },
-
+  mounted() {
+    getOrderStatus().then(response => {
+      this.orderOptions = response.data.map(item => {
+        return {
+          value: item.key,
+          label: item.value
+        };
+      });
+    });
+  },
   methods: {
     getCustomerList(val) {
       this.inputForm.customerId = val;
+    },
+    getSearchCustomerList(val) {
+      this.searchForm.customerId = val;
     },
     //获取文件
     beforeupload(file) {
@@ -188,28 +365,43 @@ export default {
         this.loading = false;
       });
     },
-    //分页查询
-    handleList() {
-      let para = {
-        itemId: this.searchForm.itemId,
-        warehouse: this.searchForm.warehouse,
-        shipDate: this.searchForm.shipDate,
-        carNumber: this.searchForm.carNumber,
-        ioType: this.searchForm.ioType,
-        ioStatus: this.searchForm.ioStatus,
-        pageNum: this.currentPage,
-        pageSize: this.pageSize,
-        sortName: "created_date",
-        sortOrder: "desc"
-      };
+    handleSizeChange(size) {
+      this.pageSize = size;
+      this.handleOrderList();
+    },
+    handleCurrentChange(currentPage) {
+      this.currentPage = currentPage;
+      this.handleOrderList();
+    },
+    dateFormat: function(row, column) {
+      var date = row[column.property];
+      return this.COMMON.dateFormat(date);
+    },
+    handleOrderList() {
+      this.tabLoading = true;
+      this.$set(this.searchForm, "pageNum", this.currentPage);
+      this.$set(this.searchForm, "pageSize", this.pageSize);
+      this.$set(this.searchForm, "sortName", "created_date");
+      this.$set(this.searchForm, "sortOrder", "desc");
+      this.$set(this.searchForm, "selectDatas", "");
+
+      if (this.searchForm.pickDate != null) {
+        this.$set(
+          this.searchForm,
+          "selectDatas",
+          JSON.stringify(this.searchForm.pickDate)
+        );
+      }
+
       request({
-        url: "/transactionManagement/search",
+        url: "/orderManagement/search",
         method: "post",
-        params: para
+        params: this.searchForm
       }).then(res => {
         this.rows = res.data.list;
         this.count = res.data.total;
         this.currentPage = res.data.pageNum;
+        this.tabLoading = false;
       });
     },
     restFrm() {

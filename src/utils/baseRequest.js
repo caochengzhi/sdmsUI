@@ -50,6 +50,45 @@ export function getDictDatasByDictCode(dictCode) {
 }
 
 /*
+ * 获取客户列表
+ */
+export function getCustomerList(customerName) {
+    return request({
+        url: "/baseSearch/getCustomerList",
+        method: "get",
+        params: { customerName: customerName }
+    })
+}
+
+/*
+ * 获取供应商列表
+ */
+export function getVendorList(vendorName) {
+    return request({
+        url: "/baseSearch/getVendorList",
+        method: "get",
+        params: { vendorName: vendorName }
+    })
+}
+
+/*
+ * 获取供应商列表
+ */
+export function getVendorist() {
+    return request({
+        url: "/baseSearch/getVendorist",
+        method: "get"
+    })
+}
+
+export function getOrderStatus() {
+    return request({
+        url: "/baseSearch/getOrderStatus",
+        method: "get"
+    })
+}
+
+/*
  * 获取订单字段列表
  */
 export function getOrderFieldList() {

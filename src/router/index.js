@@ -62,6 +62,20 @@ export const constantRouterMap = [{
         }
     },
     {
+        path: '/customerManagement',
+        component: resolve => require(['../components/page/CustomersSearch.vue'], resolve),
+        meta: {
+            title: '客户资料管理'
+        }
+    },
+    {
+        path: '/vendorManagement',
+        component: resolve => require(['../components/page/VendorsSearch.vue'], resolve),
+        meta: {
+            title: '供应商资料管理'
+        }
+    },
+    {
         path: '/customerOrderExcelConfig',
         component: resolve => require(['../components/page/CustomerOrderExcelConfig.vue'], resolve),
         meta: {
@@ -118,13 +132,6 @@ export const constantRouterMap = [{
         }
     },
     {
-        path: '/orderManagement',
-        component: resolve => require(['../components/page/OrderSearch.vue'], resolve),
-        meta: {
-            title: '订单信息管理'
-        }
-    },
-    {
         path: '/addPoInfo',
         component: resolve => require(['../components/page/AddPoInfo.vue'], resolve),
         meta: {
@@ -138,7 +145,27 @@ export const constantRouterMap = [{
             title: '创建发车信息'
         }
     },
-
+    {
+        path: '/orderManagement',
+        component: resolve => require(['../components/page/OrderSearch.vue'], resolve),
+        meta: {
+            title: '原始订单查询'
+        }
+    },
+    {
+        path: '/orderCheckManagement',
+        component: resolve => require(['../components/page/OrderCheckSearch.vue'], resolve),
+        meta: {
+            title: '订单审核'
+        }
+    },
+    {
+        path: '/expressManagement',
+        component: resolve => require(['../components/page/OrderExpressSearch.vue'], resolve),
+        meta: {
+            title: '物流信息查询'
+        }
+    },
 
 
 

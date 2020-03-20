@@ -23,12 +23,20 @@
       <el-table-column label="序号" type="index" width="60" align="center"></el-table-column>
       <el-table-column prop="dictDataName" label="字典键值">
         <template slot-scope="scope">
-          <el-input v-model="scope.row.dictDataName" placeholder="字典键值"></el-input>
+          <el-input
+            v-model="scope.row.dictDataName"
+            placeholder="字典键值"
+            @input.native="changeVal(scope.row)"
+          ></el-input>
         </template>
       </el-table-column>
       <el-table-column prop="dictDataCode" label="字典标签">
         <template slot-scope="scope">
-          <el-input v-model="scope.row.dictDataCode" placeholder="字典标签"></el-input>
+          <el-input
+            v-model="scope.row.dictDataCode"
+            placeholder="字典标签"
+            @input.native="changeVal(scope.row)"
+          ></el-input>
         </template>
       </el-table-column>
       <el-table-column prop="remarks" label="备注">
@@ -80,6 +88,16 @@ export default {
       });
   },
   methods: {
+    changeVal(row) {
+      var id = row.id;
+      if (typeof id != "undefined") {
+        this.$message({
+          message: "无效操作！此数据修改无效！",
+          type: "error"
+        });
+        return;
+      }
+    },
     //添加行数
     addLine() {
       var newValue = {

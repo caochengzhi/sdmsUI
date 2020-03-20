@@ -231,8 +231,8 @@ export default {
       });
     },
     //删除行数
-    handleDelete(index) {
-      var id = this.tableData[index].id;
+    handleDelete(index, row) {
+      var id = row.id;
       if (typeof id != "undefined") {
         this.$message({
           message: "已保存数据，不允许删除，请做失效处理",

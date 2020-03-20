@@ -62,7 +62,7 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="currentPage"
-        :page-sizes="[15, 50, 100, 200]"
+        :page-sizes="[30, 50, 100, 200]"
         :page-size="pageSize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="count"
@@ -94,7 +94,9 @@ export default {
   data() {
     return {
       searchForm: {
-        itemId: null
+        itemId: null,
+        sortName: "created_date",
+        sortOrder: "desc"
       },
       form: {
         item: null,
@@ -107,7 +109,7 @@ export default {
       dialogFormVisible: false,
       itemOptions: [],
       currentPage: 1, //初始页
-      pageSize: 15, //每页的数据
+      pageSize: 30, //每页的数据
       count: 0,
       rows: [],
       row: null
@@ -137,17 +139,12 @@ export default {
       this.handleItemList();
     },
     handleItemList() {
-      let para = {
-        pageNum: this.currentPage,
-        pageSize: this.pageSize,
-        itemId: this.searchForm.itemId,
-        sortName: "created_date",
-        sortOrder: "desc"
-      };
+      this.$set(this.searchForm, "pageNum", this.currentPage);
+      this.$set(this.searchForm, "pageSize", this.pageSize);
       request({
         url: "/itemManagement/search",
         method: "post",
-        params: para
+        params: this.searchForm
       }).then(res => {
         this.rows = res.data.list;
         this.count = res.data.total;
