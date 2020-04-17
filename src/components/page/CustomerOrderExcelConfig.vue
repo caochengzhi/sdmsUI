@@ -64,7 +64,7 @@
           <el-input v-model="scope.row.operateType" placeholder="操作类型" readonly></el-input>
         </template>
       </el-table-column>
-      <el-table-column prop="codeField" label="表字段" width="150">
+      <el-table-column prop="codeField" label="系统字段" width="150">
         <template slot-scope="scope">
           <el-select
             v-model="scope.row.codeField"
@@ -82,14 +82,9 @@
           </el-select>
         </template>
       </el-table-column>
-      <el-table-column prop="codeDesc" label="业务字段">
+      <el-table-column prop="codeDesc" label="客户字段">
         <template slot-scope="scope">
           <el-input v-model="scope.row.codeDesc" placeholder="业务字段"></el-input>
-        </template>
-      </el-table-column>
-      <el-table-column prop="codeRelation" label="对应关系">
-        <template slot-scope="scope">
-          <el-input v-model="scope.row.codeRelation" placeholder="对应关系"></el-input>
         </template>
       </el-table-column>
       <el-table-column prop="remark" label="备注信息">
@@ -220,7 +215,6 @@ export default {
             codeField: null,
             codeDesc: null,
             remark: null,
-            codeRelation: null,
             position: null,
             customerId: this.searchForm.customerId,
             operateType: this.searchForm.operateType,
@@ -244,19 +238,12 @@ export default {
       }
     },
     saveExcelConfig() {
-      //保存之前判断itemSpecificId是否已配置
+      //保存之前判断规格信息是否已配置
       let hasItemSpecific = false;
-      let hasCodeRelation = true;
       let fieldIsNull = true;
       let codeIsNull = true;
       this.tableData.forEach(item => {
-        if ("itemSpecificId" === item.codeField) {
-          if (
-            item.codeRelation == null ||
-            item.codeRelation.split(" ").join("").length === 0
-          ) {
-            hasCodeRelation = false;
-          }
+        if ("itemSpecific" === item.codeField && "Y" === item.isValid) {
           hasItemSpecific = true;
         }
         if (
@@ -271,15 +258,7 @@ export default {
       });
       if (!hasItemSpecific) {
         this.$message({
-          message: "表字段‘中‘itemSpecificId’未配置，请检查",
-          type: "warning"
-        });
-        return;
-      }
-      if (!hasCodeRelation) {
-        this.$message({
-          message:
-            "表字段等于‘itemSpecificId’所在行的’对应关系‘字段不允许为空，请检查",
+          message: "‘产品规格信息’未配置，请检查",
           type: "warning"
         });
         return;

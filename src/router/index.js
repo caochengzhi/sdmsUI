@@ -104,6 +104,20 @@ export const constantRouterMap = [{
         }
     },
     {
+        path: '/modifyCustomer',
+        component: resolve => require(['../components/page/ModifyCustomer.vue'], resolve),
+        meta: {
+            title: '编辑客户'
+        }
+    },
+    {
+        path: '/modifyVendor',
+        component: resolve => require(['../components/page/ModifyVendor.vue'], resolve),
+        meta: {
+            title: '编辑供应商'
+        }
+    },
+    {
         path: '/transactionManagement',
         component: resolve => require(['../components/page/MaterialTransSearch.vue'], resolve),
         meta: {

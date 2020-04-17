@@ -6,8 +6,8 @@
         <hr align="center" size="1">-->
         <br />
         <el-form-item>
-          <el-row :gutter="10">
-            <el-col :xs="8" :sm="6" :md="2" :lg="7" :xl="1">
+          <el-row :gutter="50">
+            <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
               <el-form-item label="登录名：">
                 <el-input
                   v-model="form.loginName"
@@ -16,48 +16,44 @@
                 ></el-input>
               </el-form-item>
             </el-col>
-            <el-col :xs="4" :sm="6" :md="10" :lg="2" :xl="11">&nbsp;</el-col>
-            <el-col :xs="8" :sm="6" :md="2" :lg="7" :xl="1">
+            <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
               <el-form-item label="用户名：">
                 <el-input v-model="form.userName" placeholder="用户名"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row :gutter="10">
-            <el-col :xs="8" :sm="6" :md="2" :lg="7" :xl="1">
+          <el-row :gutter="50">
+            <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
               <el-form-item label="密码：">
                 <el-input v-model="form.loginPassword" :disabled="true" show-password></el-input>
               </el-form-item>
             </el-col>
-            <el-col :xs="4" :sm="6" :md="10" :lg="2" :xl="11">&nbsp;</el-col>
-            <el-col :xs="8" :sm="6" :md="2" :lg="7" :xl="1">
+            <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
               <el-form-item label="性别：">
                 <el-radio v-model="form.sex" label="男"></el-radio>
                 <el-radio v-model="form.sex" label="女"></el-radio>
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row :gutter="10">
-            <el-col :xs="8" :sm="6" :md="2" :lg="7" :xl="1">
+          <el-row :gutter="50">
+            <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
               <el-form-item label="手机：">
                 <el-input v-model="form.telephone" placeholder="手机号"></el-input>
               </el-form-item>
             </el-col>
-            <el-col :xs="4" :sm="6" :md="10" :lg="2" :xl="11">&nbsp;</el-col>
-            <el-col :xs="8" :sm="6" :md="2" :lg="7" :xl="1">
+            <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
               <el-form-item label="固话：">
                 <el-input v-model="form.phoneNumber" placeholder="座机号"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row :gutter="10">
-            <el-col :xs="8" :sm="6" :md="2" :lg="7" :xl="1">
+          <el-row :gutter="50">
+            <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
               <el-form-item label="邮箱：">
                 <el-input v-model="form.email" placeholder="登录名"></el-input>
               </el-form-item>
             </el-col>
-            <el-col :xs="4" :sm="6" :md="10" :lg="2" :xl="11">&nbsp;</el-col>
-            <el-col :xs="8" :sm="6" :md="2" :lg="7" :xl="1">
+            <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
               <el-form-item label="是否有效：">
                 <el-switch
                   v-model="form.isValid"
@@ -70,7 +66,7 @@
           </el-row>
         </el-form-item>
         <el-form-item>
-          <el-row :gutter="10">
+          <el-row :gutter="50">
             <el-col :xs="12" :sm="12" :md="12" :lg="12" :xl="12">
               <el-form-item label="所属角色：">
                 <el-select v-model="roleIdList" multiple filterable style="width:400px;">

@@ -4,29 +4,27 @@
     <el-tabs v-model="activeName">
       <el-tab-pane label="编辑角色" name="first">
         <el-form ref="form" :model="form" label-width="auto">
-          <el-row :gutter="10">
-            <el-col :xs="8" :sm="6" :md="2" :lg="7" :xl="1">
+          <el-row :gutter="50">
+            <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
               <el-form-item label="角色名称：">
                 <el-input v-model="form.roleName" placeholder="角色名称"></el-input>
               </el-form-item>
             </el-col>
-            <el-col :xs="4" :sm="6" :md="10" :lg="2" :xl="11">&nbsp;</el-col>
-            <el-col :xs="8" :sm="6" :md="2" :lg="7" :xl="1">
+            <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
               <el-form-item label="角色编码：">
                 <el-input v-model="form.roleCode" placeholder="角色编码"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
-
-          <el-row :gutter="10">
-            <el-col :xs="8" :sm="6" :md="2" :lg="12" :xl="1">
+          <el-row :gutter="50">
+            <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
               <el-form-item label="备注信息：">
                 <el-input v-model="form.description" placeholder="备注信息"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
 
-          <el-row :gutter="10">
+          <el-row :gutter="50">
             <el-col>
               <el-form-item label="用户选择：">
                 <el-transfer
@@ -81,7 +79,7 @@
   </div>
 </template>
   
-  <script>
+<script>
 import request from "@/utils/request";
 import { getUsersByRoleId, getResourcesByRoleId } from "@/utils/baseRequest";
 

@@ -97,9 +97,13 @@
         show-overflow-tooltip
         width="120"
       />
-      <el-table-column fixed prop="productName" show-overflow-tooltip label="商家货品" width="120" />
-      <el-table-column prop="itemGrade" label="等级" />
-      <el-table-column prop="itemSpecific" label="规格" />
+      <el-table-column
+        fixed
+        prop="customerItemSpecific"
+        show-overflow-tooltip
+        label="商家货品"
+        width="120"
+      />
       <el-table-column prop="orderStatusDesc" label="订单状态" width="120" />
       <el-table-column prop="consigneeAddress" show-overflow-tooltip label="收件人地址" width="200" />
       <el-table-column prop="isValid" label="是否有效" width="80" />

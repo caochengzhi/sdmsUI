@@ -4,7 +4,7 @@
       <el-form ref="searchForm" :model="searchForm" label-width="auto">
         <el-row :gutter="50">
           <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
-            <el-form-item label="客户名称:">
+            <el-form-item label="供应商名称:">
               <el-select
                 v-model="searchForm.id"
                 clearable
@@ -25,7 +25,7 @@
             </el-form-item>
           </el-col>
           <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
-            <el-form-item label="客户等级：">
+            <el-form-item label="供应商等级：">
               <dict-select @getDictVal="getVendorGrade" v-bind:dictCode="'GradeList'"></dict-select>
             </el-form-item>
           </el-col>
@@ -36,20 +36,20 @@
           <el-button
             type="primary"
             icon="el-icon-lx-search"
-            v-has="'customerManagement-search'"
+            v-has="'vendorManagement-search'"
             @click="handleVendorList"
           >查 询</el-button>
           <el-button
             type="primary"
             icon="el-icon-lx-add"
-            v-has="'customerManagement-add'"
-            @click="addCustomer"
+            v-has="'vendorManagement-add'"
+            @click="addVendor"
           >新 增</el-button>
           <el-button
             type="primary"
             icon="el-icon-lx-settings"
-            v-has="'customerManagement-modify'"
-            @click="modifyCustomer"
+            v-has="'vendorManagement-modify'"
+            @click="modifyVendor"
           >编 辑</el-button>
         </el-button-group>
       </div>
@@ -72,14 +72,14 @@
         </template>
       </el-table-column>
       <el-table-column
-        prop="customerAddress"
+        prop="vendorAddress"
         label="地址"
         align="center"
         show-overflow-tooltip
         width="150"
       ></el-table-column>
       <el-table-column
-        prop="customerEmail"
+        prop="vendorEmail"
         label="邮箱"
         align="center"
         show-overflow-tooltip
@@ -87,9 +87,9 @@
       ></el-table-column>
       <el-table-column prop="network" label="网址" align="center" show-overflow-tooltip width="150"></el-table-column>
       <el-table-column prop="remarks" label="备注" align="center" show-overflow-tooltip width="150"></el-table-column>
-      <el-table-column prop="createdBy" label="创建人" align="center"></el-table-column>
+      <el-table-column prop="createdBy" label="创建人" align="center" width="100"></el-table-column>
       <el-table-column prop="createdDate" :formatter="dateFormat" label="创建日期" width="150" sortable></el-table-column>
-      <el-table-column prop="lastUpdatedBy" label="修改人" align="center"></el-table-column>
+      <el-table-column prop="lastUpdatedBy" label="修改人" align="center" width="100"></el-table-column>
       <el-table-column
         prop="lastUpdatedDate"
         :formatter="dateFormat"
@@ -110,21 +110,6 @@
         :total="count"
       ></el-pagination>
     </div>
-    <!-- Form -->
-    <el-dialog title="新增产品" :visible.sync="dialogFormVisible" width="30%">
-      <el-form ref="form" :model="form" :rules="rules">
-        <el-form-item label="产品名称" prop="item" :label-width="formLabelWidth">
-          <el-input v-model="form.item"></el-input>
-        </el-form-item>
-        <el-form-item label="备注信息" prop="remarks" :label-width="formLabelWidth">
-          <el-input v-model="form.remarks"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="saveCustomer('form')">保 存</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
     
@@ -142,13 +127,8 @@ export default {
         sortName: "created_date",
         sortOrder: "desc"
       },
-      form: {
-        item: null,
-        remarks: null
-      },
       loading: false,
       formLabelWidth: "80px",
-      dialogFormVisible: false,
       vendorOptions: [],
       currentPage: 1, //初始页
       pageSize: 30, //每页的数据
@@ -210,15 +190,11 @@ export default {
       var date = row[column.property];
       return this.COMMON.dateFormat(date);
     },
-    addCustomer() {
-      this.dialogFormVisible = true;
-      this.form = {};
-    },
-    saveCustomer(formName) {
+    saveVendor(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
           request({
-            url: "/customersManager/saveCustomer",
+            url: "/customersManager/saveVendor",
             method: "post",
             params: this.form
           }).then(res => {
@@ -232,7 +208,10 @@ export default {
         }
       });
     },
-    modifyCustomer() {
+    addVendor() {
+      this.$router.push({ path: "modifyVendor" });
+    },
+    modifyVendor() {
       if (this.row == null) {
         this.$message({
           message: "请点击需要修改的行",
@@ -240,7 +219,7 @@ export default {
         });
         return;
       } else {
-        this.$router.push({ path: "modifyCustomer", query: { row: this.row } });
+        this.$router.push({ path: "modifyVendor", query: { row: this.row } });
       }
     }
   }

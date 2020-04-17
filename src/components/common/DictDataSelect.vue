@@ -18,7 +18,7 @@ export default {
       param: null
     };
   },
-  props: ["dictCode"],
+  props: ["dictCode", "dictValue"],
 
   mounted() {
     //获取各类型数据字典列表
@@ -30,6 +30,7 @@ export default {
         };
       });
     });
+    this.param = this.dictValue;
   },
 
   methods: {

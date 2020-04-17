@@ -92,9 +92,9 @@
       ></el-table-column>
       <el-table-column prop="network" label="网址" align="center" show-overflow-tooltip width="150"></el-table-column>
       <el-table-column prop="remarks" label="备注" align="center" show-overflow-tooltip width="150"></el-table-column>
-      <el-table-column prop="createdBy" label="创建人" align="center"></el-table-column>
+      <el-table-column prop="createdBy" label="创建人" align="center" width="100"></el-table-column>
       <el-table-column prop="createdDate" :formatter="dateFormat" label="创建日期" width="150" sortable></el-table-column>
-      <el-table-column prop="lastUpdatedBy" label="修改人" align="center"></el-table-column>
+      <el-table-column prop="lastUpdatedBy" label="修改人" align="center" width="100"></el-table-column>
       <el-table-column
         prop="lastUpdatedDate"
         :formatter="dateFormat"
@@ -115,21 +115,6 @@
         :total="count"
       ></el-pagination>
     </div>
-    <!-- Form -->
-    <el-dialog title="新增产品" :visible.sync="dialogFormVisible" width="30%">
-      <el-form ref="form" :model="form" :rules="rules">
-        <el-form-item label="产品名称" prop="item" :label-width="formLabelWidth">
-          <el-input v-model="form.item"></el-input>
-        </el-form-item>
-        <el-form-item label="备注信息" prop="remarks" :label-width="formLabelWidth">
-          <el-input v-model="form.remarks"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="saveCustomer('form')">保 存</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
     
@@ -147,13 +132,8 @@ export default {
         sortName: "created_date",
         sortOrder: "desc"
       },
-      form: {
-        item: null,
-        remarks: null
-      },
       loading: false,
       formLabelWidth: "80px",
-      dialogFormVisible: false,
       customerOptions: [],
       currentPage: 1, //初始页
       pageSize: 30, //每页的数据
@@ -216,25 +196,8 @@ export default {
       return this.COMMON.dateFormat(date);
     },
     addCustomer() {
-      this.dialogFormVisible = true;
-      this.form = {};
-    },
-    saveCustomer(formName) {
-      this.$refs[formName].validate(valid => {
-        if (valid) {
-          request({
-            url: "/customersManager/saveCustomer",
-            method: "post",
-            params: this.form
-          }).then(res => {
-            this.$message({
-              message: res.data.msg,
-              type: res.data.code == "200" ? "success" : "error"
-            });
-            this.handleCustomerList();
-          });
-          this.dialogFormVisible = false;
-        }
+      this.$router.push({
+        path: "modifyCustomer"
       });
     },
     modifyCustomer() {
