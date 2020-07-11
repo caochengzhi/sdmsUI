@@ -79,10 +79,10 @@
               </el-select>
             </template>
           </el-table-column>
-          <el-table-column prop="specificId" label="包装规格(不允许修改)">
+          <el-table-column prop="standardId" label="包装规格(不允许修改)">
             <template slot-scope="scope">
               <el-select
-                v-model="scope.row.specificId"
+                v-model="scope.row.standardId"
                 placeholder="请选择(必填)"
                 @change="changeOption(scope.row)"
               >
@@ -199,7 +199,7 @@ export default {
       var newValue = {
         itemId: this.itemForm.itemId,
         item: this.itemForm.item,
-        specificId: null,
+        standardId: null,
         gradeId: null,
         remarks: null,
         isValid: "Y"

@@ -76,13 +76,6 @@ export const constantRouterMap = [{
         }
     },
     {
-        path: '/customerOrderExcelConfig',
-        component: resolve => require(['../components/page/CustomerOrderExcelConfig.vue'], resolve),
-        meta: {
-            title: '客户订单字段配置'
-        }
-    },
-    {
         path: '/modifyItem',
         component: resolve => require(['../components/page/ModifyItem.vue'], resolve),
         meta: {
@@ -167,10 +160,17 @@ export const constantRouterMap = [{
         }
     },
     {
-        path: '/orderCheckManagement',
-        component: resolve => require(['../components/page/OrderCheckSearch.vue'], resolve),
+        path: '/orderReviewManagement',
+        component: resolve => require(['../components/page/OrderReviewSearch.vue'], resolve),
         meta: {
-            title: '订单审核'
+            title: '订单审核管理'
+        }
+    },
+    {
+        path: '/orderReviewManagement',
+        component: resolve => require(['../components/page/OrderOutStockearch.vue'], resolve),
+        meta: {
+            title: '订单出库管理'
         }
     },
     {

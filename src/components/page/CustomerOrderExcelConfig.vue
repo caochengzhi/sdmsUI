@@ -1,47 +1,20 @@
 <template>
   <div class="container">
     <div>
-      <el-form ref="searchForm" :model="searchForm" :rules="rules" label-width="auto">
-        <el-row :gutter="50">
-          <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
-            <el-form-item label="客户选择:" prop="customerId">
-              <dict-selectId @getDictVal="getCustomerList" v-bind:dictCode="'customerList'"></dict-selectId>
-            </el-form-item>
-          </el-col>
-          <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
-            <el-form-item label="订单操作:" prop="operateType">
-              <el-select v-model="searchForm.operateType">
-                <el-option
-                  v-for="item in options"
-                  :key="item.index"
-                  :label="item.label"
-                  :value="item.value"
-                ></el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
       <div align="right" style="padding-bottom:5px;">
         <el-button-group>
           <el-button
             type="primary"
-            icon="el-icon-lx-search"
-            v-has="'customerOrderExcelConfig-search'"
-            @click="handleExcelConfigList('searchForm')"
-          >查 询</el-button>
-          <el-button
-            type="primary"
             icon="el-icon-lx-add"
-            v-has="'customerOrderExcelConfig-add'"
-            @click="addExcelConfig('searchForm')"
-          >新 增</el-button>
+            v-has="'customerManagement-configAdd'"
+            @click="addExcelConfig"
+          >新增配置字段</el-button>
           <el-button
             type="primary"
-            icon="el-icon-lx-settings"
-            v-has="'customerOrderExcelConfig-save'"
+            icon="el-icon-lx-roundcheck"
+            v-has="'customerManagement-configSave'"
             @click="saveExcelConfig"
-          >保 存</el-button>
+          >保存配置</el-button>
         </el-button-group>
       </div>
     </div>
@@ -54,17 +27,17 @@
       stripe
     >
       <el-table-column type="index" label="序号" width="55"></el-table-column>
-      <el-table-column prop="customerId" label="客户ID" width="80">
+      <el-table-column prop="customerId" label="客户ID" width="80" v-if="colShow">
         <template slot-scope="scope">
           <el-input v-model="scope.row.customerId" placeholder="客户ID" readonly></el-input>
         </template>
       </el-table-column>
-      <el-table-column prop="operateType" label="操作类型" width="95">
+      <el-table-column prop="operateType" label="操作类型" width="95" v-if="colShow">
         <template slot-scope="scope">
           <el-input v-model="scope.row.operateType" placeholder="操作类型" readonly></el-input>
         </template>
       </el-table-column>
-      <el-table-column prop="codeField" label="系统字段" width="150">
+      <el-table-column prop="codeField" label="系统字段">
         <template slot-scope="scope">
           <el-select
             v-model="scope.row.codeField"
@@ -87,18 +60,9 @@
           <el-input v-model="scope.row.codeDesc" placeholder="业务字段"></el-input>
         </template>
       </el-table-column>
-      <el-table-column prop="remark" label="备注信息">
+      <el-table-column prop="remarks" label="备注信息">
         <template slot-scope="scope">
-          <el-input v-model="scope.row.remark" placeholder="备注"></el-input>
-        </template>
-      </el-table-column>
-      <el-table-column prop="position" label="导出顺序" width="80">
-        <template slot-scope="scope">
-          <el-input
-            oninput="value=value.replace(/[^\d]/g,'')"
-            v-model="scope.row.position"
-            placeholder="数字"
-          ></el-input>
+          <el-input v-model="scope.row.remarks" placeholder="备注"></el-input>
         </template>
       </el-table-column>
       <el-table-column prop="isValid" label="是否有效" width="75">
@@ -123,39 +87,19 @@
     
 <script>
 import request from "@/utils/request";
-import { getOrderFieldList } from "@/utils/baseRequest";
+import { getOrderFieldList, getCustomerList } from "@/utils/baseRequest";
 import dictSelectId from "@/components/common/DictDataSelectId.vue";
 export default {
   name: "CustomerOrderExcelConfig",
   data() {
     return {
-      searchForm: {
-        customerId: null,
-        operateType: null
-      },
-      rules: {
-        customerId: [
-          { required: true, message: "客户列表不允许为空", trigger: "change" }
-        ],
-        operateType: [
-          { required: true, message: "操作类型不允许为空", trigger: "change" }
-        ]
-      },
-      options: [
-        {
-          value: "INPUT",
-          label: "导入"
-        },
-        {
-          value: "OUTPUT",
-          label: "导出"
-        }
-      ],
+      colShow: false,
       fieldOptions: [],
-      tableData: []
+      tableData: [],
+      customersOptions: []
     };
   },
-
+  props: ["customerId"],
   components: {
     dictSelectId
   },
@@ -170,6 +114,15 @@ export default {
         };
       });
     });
+    getCustomerList().then(response => {
+      this.customersOptions = response.data.map(item => {
+        return {
+          value: item.id,
+          label: item.customerName
+        };
+      });
+    });
+    this.handleExcelConfigList();
   },
 
   methods: {
@@ -190,39 +143,32 @@ export default {
         }
       });
     },
-    handleExcelConfigList(formName) {
-      this.$refs[formName].validate(valid => {
-        if (valid) {
-          let para = {
-            customerId: this.searchForm.customerId,
-            operateType: this.searchForm.operateType
-          };
-          request({
-            url: "/customerOrderExcelConfig/search",
-            method: "post",
-            params: para
-          }).then(res => {
-            this.tableData = res.data;
-          });
-        }
+    handleExcelConfigList() {
+      if (this.customerId == null) {
+        return;
+      }
+      let para = {
+        customerId: this.customerId
+      };
+      request({
+        url: "/orderManagement/orderExcelConfigsearch",
+        method: "post",
+        params: para
+      }).then(res => {
+        this.tableData = res.data;
       });
     },
     //添加新的行数
-    addExcelConfig(formName) {
-      this.$refs[formName].validate(valid => {
-        if (valid) {
-          var newValue = {
-            codeField: null,
-            codeDesc: null,
-            remark: null,
-            position: null,
-            customerId: this.searchForm.customerId,
-            operateType: this.searchForm.operateType,
-            isValid: "Y"
-          };
-          this.tableData.push(newValue);
-        }
-      });
+    addExcelConfig() {
+      var newValue = {
+        codeField: null,
+        codeDesc: null,
+        remarks: null,
+        customerId: this.customerId,
+        operateType: "INPUT",
+        isValid: "Y"
+      };
+      this.tableData.push(newValue);
     },
     //删除行数
     handleDelete(index, row) {
@@ -243,7 +189,7 @@ export default {
       let fieldIsNull = true;
       let codeIsNull = true;
       this.tableData.forEach(item => {
-        if ("itemSpecific" === item.codeField && "Y" === item.isValid) {
+        if ("customerItemSpecific" === item.codeField && "Y" === item.isValid) {
           hasItemSpecific = true;
         }
         if (
@@ -258,7 +204,7 @@ export default {
       });
       if (!hasItemSpecific) {
         this.$message({
-          message: "‘产品规格信息’未配置，请检查",
+          message: "‘产品规格信息’未配置或不允许做失效处理，请检查",
           type: "warning"
         });
         return;
@@ -271,7 +217,7 @@ export default {
         return;
       }
       request({
-        url: "/customerOrderExcelConfig/saveCustomerOrderConfigs",
+        url: "/orderManagement/saveCustomerOrderConfigs",
         method: "post",
         data: this.tableData
       }).then(res => {
@@ -279,11 +225,8 @@ export default {
           message: res.data.msg,
           type: res.data.code == "200" ? "success" : "error"
         });
-        this.handleExcelConfigList("searchForm");
+        this.handleExcelConfigList();
       });
-    },
-    getCustomerList(val) {
-      this.searchForm.customerId = val;
     }
   }
 };

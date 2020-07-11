@@ -126,6 +126,7 @@
                 </el-select>
               </template>
             </el-table-column>
+
             <el-table-column prop="isValid" label="是否生效" width="80">
               <template slot-scope="scope">
                 <el-switch v-model="scope.row.isValid" active-value="Y" inactive-value="N"></el-switch>

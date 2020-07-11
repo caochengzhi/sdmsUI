@@ -73,7 +73,6 @@
     
 <script>
 import request from "@/utils/request";
-import dictSelect from "@/components/common/DictDataSelect.vue";
 import {
   getVendorArchiveListByVendorId,
   getItems,

@@ -61,35 +61,31 @@ export function getDictDatasByDictCode(dictCode) {
  * 获取客户列表
  */
 export function getCustomerList(customerName) {
-    if (customerName != null) {
-        return request({
-            url: "/baseSearch/getCustomerList",
-            method: "get",
-            params: { customerName: customerName }
-        })
-    }
+    return request({
+        url: "/baseSearch/getCustomerList",
+        method: "get",
+        params: { customerName: customerName }
+    })
+}
+
+/*
+* 获取客户产品规格列表
+*/
+export function getDistinctCustomerSpecific() {
+    return request({
+        url: "/baseSearch/getDistinctCustomerSpecific",
+        method: "get"
+    })
 }
 
 /*
  * 获取供应商列表
  */
 export function getVendorList(vendorName) {
-    if (vendorName != null) {
-        return request({
-            url: "/baseSearch/getVendorList",
-            method: "get",
-            params: { vendorName: vendorName }
-        })
-    }
-}
-
-/*
- * 获取供应商列表
- */
-export function getVendorist() {
     return request({
-        url: "/baseSearch/getVendorist",
-        method: "get"
+        url: "/baseSearch/getVendorList",
+        method: "get",
+        params: { vendorName: vendorName }
     })
 }
 

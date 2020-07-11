@@ -92,7 +92,7 @@
             <el-input v-model="form.remarks"></el-input>
           </el-form-item>
           <el-form-item label="是否生效" prop="isValid" :label-width="formLabelWidth">
-            <el-switch v-model="form.isValid" active-value="Y" inactive-value="Y"></el-switch>
+            <el-switch v-model="form.isValid" active-value="Y" inactive-value="N"></el-switch>
           </el-form-item>
           <el-input v-model="form.dictId" type="hidden"></el-input>
           <el-input v-model="form.organizationId" type="hidden"></el-input>

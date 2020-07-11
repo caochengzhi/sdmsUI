@@ -3,12 +3,14 @@
     <div>
       <div align="right" style="padding-bottom:5px;">
         <el-button-group>
-          <el-button
-            type="primary"
-            icon="el-icon-upload"
-            v-has="'orderManagement-input'"
-            @click="dialogFormVisible = true"
-          >订单导入</el-button>
+          <el-tooltip content="提示：如果不勾选，默认审核全部订单" placement="top" effect="light">
+            <el-button
+              type="primary"
+              icon="el-icon-finished"
+              v-has="'orderReviewManagement-review'"
+              @click="reviewOrdersByResult"
+            >订单审核</el-button>
+          </el-tooltip>
         </el-button-group>
       </div>
       <el-form ref="form" :model="searchForm" label-width="auto">
@@ -26,10 +28,15 @@
             </el-form-item>
           </el-col>
           <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
-            <el-form-item label="订单状态:">
-              <el-select v-model="searchForm.orderStatus" clearable placeholder="请选择">
+            <el-form-item label="商家货品:">
+              <el-select
+                v-model="searchForm.customerItemSpecific"
+                filterable
+                clearable
+                placeholder="请选择"
+              >
                 <el-option
-                  v-for="item in orderOptions"
+                  v-for="item in specificOptions"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
@@ -38,22 +45,20 @@
             </el-form-item>
           </el-col>
           <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
-            <el-form-item label="是否有效：">
-              <el-select v-model="searchForm.isValid" clearable placeholder="请选择">
-                <el-option
-                  v-for="item in options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                ></el-option>
-              </el-select>
+            <el-form-item label="省市区:">
+              <el-cascader
+                v-model="areaArrays"
+                :options="areaOptions"
+                :props="optionProps"
+                clearable
+              ></el-cascader>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row :gutter="50">
           <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
             <el-form-item label="客户订单号:">
-              <el-input v-model="searchForm.ordecustomerOrderNorNo" placeholder="订单号"></el-input>
+              <el-input v-model="searchForm.customerOrderNo" placeholder="订单号"></el-input>
             </el-form-item>
           </el-col>
           <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
@@ -85,6 +90,7 @@
       </div>
     </div>
     <el-table
+      ref="orderTable"
       v-loading="tabLoading"
       :data="rows"
       border
@@ -93,7 +99,10 @@
       :header-cell-style="{background:'#f4f4f4'}"
       element-loading-text="表格加载中..."
       stripe
+      @selection-change="handleSelectionChange"
+      @row-click="handleClickTableRow"
     >
+      <el-table-column fixed type="selection" width="55"></el-table-column>
       <el-table-column fixed type="index" label="序号" width="55" />
       <el-table-column fixed prop="orderNo" label="系统订单号" show-overflow-tooltip width="130" />
       <el-table-column fixed prop="customerName" label="客户" show-overflow-tooltip width="100" />
@@ -115,7 +124,6 @@
       <el-table-column prop="orderStatusDesc" label="订单状态" width="120" />
       <el-table-column prop="consigneeAddress" show-overflow-tooltip label="收件人地址" width="200" />
       <el-table-column prop="isValid" label="是否有效" width="80" />
-      <el-table-column prop="remarks" label="备注" show-overflow-tooltip width="200" />
       <el-table-column prop="isReviewed" label="已审核" width="80" />
       <el-table-column prop="isGeneratedExpressNo" label="已生成物流单号" width="80" />
       <el-table-column prop="isPrinted" label="已打印" width="80" />
@@ -123,6 +131,7 @@
       <el-table-column prop="isCreatedExpressInfo" label="已生成物流信息" width="80" />
       <el-table-column prop="isCompleted" label="已关闭" width="80" />
       <el-table-column prop="isCanceled" label="已撕单" width="80" />
+      <el-table-column prop="remarks" label="备注" show-overflow-tooltip width="200" />
       <el-table-column prop="createdBy" label="创建人" width="120" />
       <el-table-column
         prop="createdDate"
@@ -152,90 +161,81 @@
       ></el-pagination>
     </div>
 
-    <el-dialog title="订单导入 （每次上传文件不超3个）" :visible.sync="dialogFormVisible" width="550px">
-      <el-form :model="inputForm" v-loading="loading" element-loading-text="订单导入中，请稍等...">
-        <el-row :gutter="50">
-          <el-col :xs="16" :sm="16" :md="16" :lg="16" :xl="16">
-            <el-form-item label="客户选择:" :label-width="formLabelWidth">
-              <el-select v-model="inputForm.customerId" clearable placeholder="请选择">
-                <el-option
-                  v-for="item in customersOptions"
-                  :key="item.index"
-                  :label="item.label"
-                  :value="item.value"
-                ></el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8" style="padding-left: 0px;">
-            <el-upload
-              action="string"
-              ref="upload"
-              :before-upload="beforeupload"
-              :on-exceed="handleExceed"
-              :show-file-list="true"
-              multiple
-              :limit="3"
-              :auto-upload="false"
-            >
-              <el-button size="mini" type="primary" @click="clearUpload">选取文件</el-button>
-            </el-upload>
-          </el-col>
-        </el-row>
+    <!-- Form，说明：整个页面使用同一个searchForm对象，是因为如果用户审核全部订单时需要再次在后台查询订单数据 -->
+    <el-dialog title="订单审核" :visible.sync="dialogFormVisible">
+      <el-form :model="searchForm" v-loading="loading" element-loading-text="订单审核中，请稍等...">
+        <el-form-item label="审核：" :label-width="formLabelWidth">
+          <el-radio v-model="searchForm.isValidSet" label="Y" @change="changeStatus">通过</el-radio>
+          <el-radio v-model="searchForm.isValidSet" label="N" @change="changeStatus">驳回</el-radio>
+        </el-form-item>
+        <el-form-item label="发货仓库：" v-show="isShow" :label-width="formLabelWidth" required>
+          <dict-selectId @getDictVal="getWarehouse" v-bind:dictCode="'warehouse'"></dict-selectId>
+        </el-form-item>
+        <el-form-item label="快递公司：" v-show="isShow" :label-width="formLabelWidth" required>
+          <dict-selectId @getDictVal="getExpressCompany" v-bind:dictCode="'expressCompany'"></dict-selectId>
+        </el-form-item>
+        <el-form-item label="备注：" v-show="isRemarkShow" :label-width="formLabelWidth" required>
+          <el-input type="textarea" v-model="searchForm.remarks" placeholder="驳回请备注原因"></el-input>
+        </el-form-item>
         <el-form-item align="right">
           <el-button @click="dialogFormVisible = false">取 消</el-button>
-          <el-button type="success" @click="submitUpload" icon="el-icon-download">导 入</el-button>
+          <el-button type="primary" @click="submitOrders">确 定</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
   </div>
 </template>
-    
 <script>
 import request from "@/utils/request";
-import { getOrderStatus, getCustomerList } from "@/utils/baseRequest";
+import dictSelectId from "@/components/common/DictDataSelectId.vue";
+import {
+  getCustomerList,
+  getDistinctCustomerSpecific
+} from "@/utils/baseRequest";
+import rawCitiesData from "@/assets/city-data.json";
 export default {
-  name: "orderManager",
+  name: "orderReviewManagement",
   show: true,
   data() {
     return {
+      //此页面只查询未审核且有效的订单
       searchForm: {
         customerOrderNo: null,
+        customerItemSpecific: null,
         customerId: null,
         orderStatus: null,
-        isValid: null,
+        isValid: "Y",
         pickDate: null,
+        areas: null,
+        isReviewed: "N",
         sortName: "created_date",
-        sortOrder: "desc"
+        sortOrder: "desc",
+        isValidSet: null, //用来传递用户审核订单通过与否
+        remarks: null,
+        expressCompanyId: null, //注意：订单审核子页面中用来分配快递公司用的字段
+        warehouseId: null //注意：订单审核子页面中用来分配仓库用的字段
       },
-      inputForm: {
-        customerId: null
-      },
-      uploadForm: new FormData(),
+      isShow: true,
+      isRemarkShow: false,
       dialogFormVisible: false,
       formLabelWidth: "100px",
+      orderIds: [],
+      areaArrays: null,
+      areaOptions: rawCitiesData,
+      optionProps: {
+        //配置节点
+        value: "label",
+        checkStrictly: true,
+        expandTrigger: "click"
+      },
       loading: false,
       tabLoading: false,
       currentPage: 1, //初始页
       pageSize: 30, //每页的数据
       count: 0,
       rows: [],
-      orderOptions: [],
       customersOptions: [],
-      options: [
-        {
-          value: "N",
-          label: "N"
-        },
-        {
-          value: "Y",
-          label: "Y"
-        },
-        {
-          value: "E",
-          label: "E"
-        }
-      ],
+      specificOptions: [],
       pickerOptions: {
         shortcuts: [
           {
@@ -268,68 +268,15 @@ export default {
               end.setSeconds(59);
               picker.$emit("pick", [start, end]);
             }
-          },
-          {
-            text: "最近一周",
-            onClick(picker) {
-              const start = new Date();
-              const end = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              start.setHours(0);
-              start.setMinutes(0);
-              start.setSeconds(0);
-              end.setHours(23);
-              end.setMinutes(59);
-              end.setSeconds(59);
-
-              picker.$emit("pick", [start, end]);
-            }
-          },
-          {
-            text: "最近一个月",
-            onClick(picker) {
-              const start = new Date();
-              const end = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              start.setHours(0);
-              start.setMinutes(0);
-              start.setSeconds(0);
-              end.setHours(23);
-              end.setMinutes(59);
-              end.setSeconds(59);
-
-              picker.$emit("pick", [start, end]);
-            }
-          },
-          {
-            text: "最近三个月",
-            onClick(picker) {
-              const start = new Date();
-              const end = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              start.setHours(0);
-              start.setMinutes(0);
-              start.setSeconds(0);
-              end.setHours(23);
-              end.setMinutes(59);
-              end.setSeconds(59);
-
-              picker.$emit("pick", [start, end]);
-            }
           }
         ]
       }
     };
   },
+  components: {
+    dictSelectId
+  },
   mounted() {
-    getOrderStatus().then(response => {
-      this.orderOptions = response.data.map(item => {
-        return {
-          value: item.key,
-          label: item.value
-        };
-      });
-    });
     getCustomerList().then(response => {
       this.customersOptions = response.data.map(item => {
         return {
@@ -338,49 +285,33 @@ export default {
         };
       });
     });
+    getDistinctCustomerSpecific().then(response => {
+      this.specificOptions = response.data.map(item => {
+        return {
+          value: item.customerSpecificCode,
+          label: item.customerSpecificCode
+        };
+      });
+    });
   },
   methods: {
-    //获取文件
-    beforeupload(file) {
-      this.uploadForm.append("file", file);
-      this.uploadForm.append("customerId", this.inputForm.customerId);
-      return false;
-    },
-    clearUpload() {
-      this.uploadForm = new FormData();
-    },
-    handleExceed(files, fileList) {
-      this.$message.warning(
-        `当前限制最多选择 3 个文件，本次选择了 ${
-          files.length
-        } 个文件，共选择了 ${files.length + fileList.length} 个文件`
-      );
-    },
-    //手动上传附件
-    submitUpload() {
-      this.$refs.upload.submit();
-      let data = this.uploadForm;
-      if (this.inputForm.customerId == null || data.get("file") == null) {
-        this.$message.warning("店铺信息或附件未选择");
-        return;
+    changeStatus(val) {
+      if (val === "Y") {
+        this.isShow = true;
+        this.isRemarkShow = false;
+      } else {
+        this.isShow = false;
+        this.isRemarkShow = true;
       }
-      this.loading = true;
-      request({
-        url: "/orderManagement/upload",
-        method: "post",
-        data: data,
-        processData: false, //必写
-        contentType: false //必写
-      }).then(res => {
-        if (res.data.code == "200") {
-          this.clearUpload();
-          this.dialogFormVisible = false;
-        }
-        this.$message({
-          message: res.data.msg,
-          type: "success"
-        });
-        this.loading = false;
+    },
+    handleClickTableRow(row, event, column) {
+      this.$refs.orderTable.toggleRowSelection(row);
+    },
+    //用户选择行的id存入数组
+    handleSelectionChange(rows) {
+      this.orderIds = [];
+      rows.forEach(row => {
+        this.orderIds.push(row.headerId);
       });
     },
     handleSizeChange(size) {
@@ -395,6 +326,12 @@ export default {
       var date = row[column.property];
       return this.COMMON.dateFormat(date);
     },
+    getExpressCompany(val) {
+      this.searchForm.expressCompanyId = val;
+    },
+    getWarehouse(val) {
+      this.searchForm.warehouseId = val;
+    },
     handleOrderList() {
       this.tabLoading = true;
       this.$set(this.searchForm, "pageNum", this.currentPage);
@@ -402,6 +339,9 @@ export default {
       this.$set(this.searchForm, "sortName", "created_date");
       this.$set(this.searchForm, "sortOrder", "desc");
       this.$set(this.searchForm, "selectDatas", "");
+      if (this.areaArrays != null) {
+        this.searchForm.areas = JSON.stringify(this.areaArrays);
+      }
 
       if (this.searchForm.pickDate != null) {
         this.$set(
@@ -423,29 +363,83 @@ export default {
       });
     },
     restFrm() {
-      this.searchForm = {};
+      this.searchForm = {
+        isValid: "Y",
+        isReviewed: "N",
+        sortName: "created_date",
+        sortOrder: "desc"
+      };
+      this.areaArrays = null;
+    },
+    //订单审核提交
+    submitOrders() {
+      if (this.searchForm.isValidSet === "Y") {
+        if (
+          this.searchForm.warehouseId == null ||
+          this.searchForm.expressCompanyId == null
+        ) {
+          this.$message({
+            message: "发货仓库或快递公司未选择，请检查!",
+            type: "warning"
+          });
+          return;
+        }
+      }
+
+      this.loading = true;
+      //1、情况一，如果用户选择指定行审核订单
+      if (this.orderIds.length > 0) {
+        orderIds: JSON.stringify(this.orderIds);
+        this.$set(this.searchForm, "headerIds", JSON.stringify(this.orderIds));
+      }
+      //2、情况二，当前符合查询条件的所有订单，所以需要把查询条件再次封装给后台
+      else if (this.count > 0) {
+        if (this.areaArrays != null) {
+          this.searchForm.areas = JSON.stringify(this.areaArrays);
+        }
+        if (this.searchForm.pickDate != null) {
+          this.$set(
+            this.searchForm,
+            "selectDatas",
+            JSON.stringify(this.searchForm.pickDate)
+          );
+        }
+      }
+      request({
+        url: "/orderManagement/reviewOrders",
+        method: "post",
+        params: this.searchForm
+      }).then(res => {
+        this.$message({
+          message: res.data.msg,
+          type: res.data.code == "200" ? "success" : "error"
+        });
+        this.dialogFormVisible = false;
+        this.loading = false;
+        this.handleOrderList();
+      });
+    },
+    reviewOrdersByResult() {
+      var total =
+        this.orderIds.length === 0 ? this.count : this.orderIds.length;
+      if (total === 0) {
+        this.$message({
+          message: "当前页面没有待审核的订单，请检查",
+          type: "warning"
+        });
+        return false;
+      }
+
+      this.$confirm("您已选择" + total + "条待审核订单, 请确认", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "success"
+      }).then(() => {
+        this.searchForm.isValidSet = "Y";
+        this.searchForm.remarks = null;
+        this.dialogFormVisible = true;
+      });
     }
   }
 };
 </script>
-<style>
-.demo-table-expand {
-  font-size: 0;
-}
-.demo-table-expand label {
-  width: 90px;
-  color: #99a9bf;
-}
-.demo-table-expand .el-form-item {
-  margin-right: 0;
-  margin-bottom: 0;
-  width: 50%;
-}
-.el-upload--text {
-  border: 0px;
-  position: relative;
-  width: 85px;
-  height: 30px;
-  overflow: hidden;
-}
-</style>

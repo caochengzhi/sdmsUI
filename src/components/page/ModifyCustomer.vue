@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <el-tabs v-model="activeName">
-      <el-tab-pane label="基本信息" name="first">
+      <el-tab-pane label="基本信息配置" name="first">
         <el-form ref="form" :rules="rules" :model="form" label-width="auto">
           <el-row :gutter="50">
             <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
@@ -87,21 +87,37 @@
                 <el-button type="info" @click="visible = false">取消</el-button>
                 <el-button type="primary" @click="saveOrUpdateCustomer('form')">确定</el-button>
               </div>
-              <el-button type="primary" slot="reference" icon="el-icon-lx-roundcheck">保存</el-button>
+              <el-button
+                type="primary"
+                slot="reference"
+                icon="el-icon-lx-roundcheck"
+                v-has="'customerManagement-save'"
+              >保存</el-button>
             </el-popover>
           </el-form-item>
         </el-form>
       </el-tab-pane>
-      <el-tab-pane label="档案信息" name="second">
+      <el-tab-pane label="档案信息配置" name="second" v-loading="loading" element-loading-text="订单匹配中...">
         <div align="right" style="padding-bottom:5px;">
           <el-button-group>
-            <el-button type="primary" icon="el-icon-lx-add" @click="addLine">新增档案信息</el-button>
+            <el-button
+              type="primary"
+              icon="el-icon-lx-add"
+              @click="addLine"
+              v-has="'customerManagement-addArchive'"
+            >新增档案信息</el-button>
             <el-button
               type="primary"
               icon="el-icon-lx-roundcheck"
               @click="save"
-              v-has="'dictManagement-save'"
+              v-has="'customerManagement-save'"
             >保 存</el-button>
+            <el-button
+              type="primary"
+              icon="el-icon-lx-refresh"
+              @click="orderMatch"
+              v-has="'customerManagement-orderMatch'"
+            >订单刷新</el-button>
           </el-button-group>
         </div>
         <el-table
@@ -166,12 +182,16 @@
           </el-table-column>
         </el-table>
       </el-tab-pane>
+      <el-tab-pane label="订单字段配置" name="thrid">
+        <customer-orderExcelConfig v-bind:customerId="subCustomerId"></customer-orderExcelConfig>
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
     
 <script>
 import request from "@/utils/request";
+import customerOrderExcelConfig from "@/components/page/CustomerOrderExcelConfig.vue";
 import dictSelect from "@/components/common/DictDataSelect.vue";
 import {
   getCustomerArchivesByCustomerId,
@@ -197,6 +217,8 @@ export default {
         remarks: null,
         isValid: "Y"
       },
+      subCustomerId: null,
+      loading: false,
       visible: false,
       activeName: "first",
       itemOptions: [],
@@ -208,13 +230,15 @@ export default {
     };
   },
   components: {
-    dictSelect
+    dictSelect,
+    customerOrderExcelConfig
   },
 
   created() {
     const row = this.$route.query.row;
     if (typeof row != "undefined") {
       this.form = row;
+      this.subCustomerId = this.form.id;
     }
   },
   mounted() {
@@ -262,6 +286,21 @@ export default {
     changeSwitch(val) {
       this.form.isValid = val;
     },
+    //失效订单重新匹配，用户重新维护了档案信息可以执行此操作
+    orderMatch() {
+      this.loading = true;
+      request({
+        url: "/orderManagement/orderMatch",
+        method: "post",
+        params: { customerId: this.form.id }
+      }).then(res => {
+        this.$message({
+          message: res.data.msg,
+          type: res.data.code == "200" ? "success" : "error"
+        });
+        this.loading = false;
+      });
+    },
     saveOrUpdateCustomer(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
@@ -284,6 +323,13 @@ export default {
     },
     //添加行数
     addLine() {
+      if (this.form.id == null) {
+        this.$message({
+          message: "客户基本信息未保存，请检查",
+          type: "warning"
+        });
+        return;
+      }
       var newValue = {
         itemId: null,
         customerId: this.form.id,

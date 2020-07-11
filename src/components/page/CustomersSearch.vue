@@ -145,6 +145,9 @@ export default {
   components: {
     dictSelect
   },
+  mounted() {
+    this.handleCustomerList();
+  },
   methods: {
     remoteMethod(query) {
       if (query !== "") {
