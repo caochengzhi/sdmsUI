@@ -54,12 +54,33 @@ export function closeTagAndGoBack(tagName, router) {
   });
 }
 
+/*
+ * 判断输入字符串是否为空或null，非空时返回false
+ */
+export function checkInputNullOrEmpty(input) {
+  if (input != null && input.trim().length > 0) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+export function handleClose(done) {
+  this.$confirm("确认关闭？")
+    .then(_ => {
+      done();
+    })
+    .catch(_ => {});
+}
+
 // 暴露出这些属性和方法
 export default {
   httpUrl,
   dateFormat,
   dateFormatYYYYMMDD,
   formFormat,
-  closeTagAndGoBack
+  closeTagAndGoBack,
+  checkInputNullOrEmpty,
+  handleClose
 };
 </script>

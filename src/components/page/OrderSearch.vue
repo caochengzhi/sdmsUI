@@ -195,7 +195,7 @@
 import request from "@/utils/request";
 import { getOrderStatus, getCustomerList } from "@/utils/baseRequest";
 export default {
-  name: "orderManager",
+  name: "orderManagement",
   show: true,
   data() {
     return {

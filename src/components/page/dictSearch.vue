@@ -80,7 +80,12 @@
 
     <div>
       <!-- Form -->
-      <el-dialog title="字典管理" :visible.sync="dialogFormVisible" width="30%">
+      <el-dialog
+        title="字典管理"
+        :before-close="this.COMMON.handleClose"
+        :visible.sync="dialogFormVisible"
+        width="30%"
+      >
         <el-form ref="form" :model="form" :rules="rules">
           <el-form-item label="字典名称" prop="dictName" :label-width="formLabelWidth">
             <el-input v-model="form.dictName" :disabled="typeof this.form.dictId != 'undefined'"></el-input>

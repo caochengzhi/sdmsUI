@@ -76,6 +76,13 @@ export const constantRouterMap = [{
         }
     },
     {
+        path: '/expressCustomerConfigManagement',
+        component: resolve => require(['../components/page/ExpressCustomerSearch.vue'], resolve),
+        meta: {
+            title: '电子面单客户号配置'
+        }
+    },
+    {
         path: '/modifyItem',
         component: resolve => require(['../components/page/ModifyItem.vue'], resolve),
         meta: {

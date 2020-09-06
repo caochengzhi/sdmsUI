@@ -107,20 +107,8 @@
       <el-table-column fixed prop="orderNo" label="系统订单号" show-overflow-tooltip width="130" />
       <el-table-column fixed prop="customerName" label="客户" show-overflow-tooltip width="100" />
       <el-table-column fixed prop="businessPlatform" label="店铺/平台" width="100" />
-      <el-table-column
-        fixed
-        prop="customerOrderNo"
-        label="客户订单号"
-        show-overflow-tooltip
-        width="120"
-      />
-      <el-table-column
-        fixed
-        prop="customerItemSpecific"
-        show-overflow-tooltip
-        label="商家货品"
-        width="120"
-      />
+      <el-table-column fixed prop="customerOrderNo" label="客户订单号" width="120" />
+      <el-table-column fixed prop="customerItemSpecific" label="商家货品" width="120" />
       <el-table-column prop="orderStatusDesc" label="订单状态" width="120" />
       <el-table-column prop="consigneeAddress" show-overflow-tooltip label="收件人地址" width="200" />
       <el-table-column prop="isValid" label="是否有效" width="80" />
@@ -165,14 +153,22 @@
     <el-dialog title="订单审核" :visible.sync="dialogFormVisible">
       <el-form :model="searchForm" v-loading="loading" element-loading-text="订单审核中，请稍等...">
         <el-form-item label="审核：" :label-width="formLabelWidth">
-          <el-radio v-model="searchForm.isValidSet" label="Y" @change="changeStatus">通过</el-radio>
-          <el-radio v-model="searchForm.isValidSet" label="N" @change="changeStatus">驳回</el-radio>
+          <el-radio v-model="searchForm.isValidSet" label="Y" @change="changeStatus('Y')">通过</el-radio>
+          <el-radio v-model="searchForm.isValidSet" label="N" @change="changeStatus('N')">驳回</el-radio>
         </el-form-item>
         <el-form-item label="发货仓库：" v-show="isShow" :label-width="formLabelWidth" required>
-          <dict-selectId @getDictVal="getWarehouse" v-bind:dictCode="'warehouse'"></dict-selectId>
+          <dict-selectId
+            @clearDictVal="clearWarhouse"
+            @getDictVal="getWarehouse"
+            v-bind:dictCode="'warehouse'"
+          ></dict-selectId>
         </el-form-item>
         <el-form-item label="快递公司：" v-show="isShow" :label-width="formLabelWidth" required>
-          <dict-selectId @getDictVal="getExpressCompany" v-bind:dictCode="'expressCompany'"></dict-selectId>
+          <dict-selectId
+            @clearDictVal="clearExpressCompany"
+            @getDictVal="getExpressCompany"
+            v-bind:dictCode="'expressCompany'"
+          ></dict-selectId>
         </el-form-item>
         <el-form-item label="备注：" v-show="isRemarkShow" :label-width="formLabelWidth" required>
           <el-input type="textarea" v-model="searchForm.remarks" placeholder="驳回请备注原因"></el-input>
@@ -326,8 +322,14 @@ export default {
       var date = row[column.property];
       return this.COMMON.dateFormat(date);
     },
+    clearExpressCompany() {
+      this.searchForm.expressCompanyId = null;
+    },
     getExpressCompany(val) {
       this.searchForm.expressCompanyId = val;
+    },
+    clearWarhouse() {
+      this.searchForm.warehouseId = null;
     },
     getWarehouse(val) {
       this.searchForm.warehouseId = val;
@@ -379,7 +381,7 @@ export default {
           this.searchForm.expressCompanyId == null
         ) {
           this.$message({
-            message: "发货仓库或快递公司未选择，请检查!",
+            message: "'发货仓库'或'快递公司'不允许为空，请检查!",
             type: "warning"
           });
           return;
@@ -435,6 +437,7 @@ export default {
         cancelButtonText: "取消",
         type: "success"
       }).then(() => {
+        this.changeStatus("Y");
         this.searchForm.isValidSet = "Y";
         this.searchForm.remarks = null;
         this.dialogFormVisible = true;

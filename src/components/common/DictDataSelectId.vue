@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-select v-model="param" @change="handleChangeValue" clearable>
+    <el-select v-model="param" @clear="clear" @change="handleChangeValue" clearable>
       <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
     </el-select>
   </div>
@@ -18,7 +18,7 @@ export default {
       param: null
     };
   },
-  props: ["dictCode"],
+  props: ["dictCode", "dictValue"],
 
   mounted() {
     //获取各类型数据字典列表
@@ -30,9 +30,13 @@ export default {
         };
       });
     });
+    this.param = this.dictValue;
   },
 
   methods: {
+    clear() {
+      this.$emit("clearDictVal");
+    },
     handleChangeValue(val) {
       this.$emit("getDictVal", val);
     }

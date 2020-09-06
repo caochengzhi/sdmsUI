@@ -88,7 +88,6 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <hr style="margin-bottom:10px;" size="1">
         <el-row :gutter="50">
           <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
             <el-form-item label="结算重量：" prop="settlementWeight">
@@ -113,6 +112,11 @@
               ></el-input>
             </el-form-item>
           </el-col>
+          <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
+            <el-form-item label="重量单位：" prop="unit">
+              <dict-select @getDictVal="getUnit" v-bind:dictCode="'weightUnit'"></dict-select>
+            </el-form-item>
+          </el-col>
         </el-row>
         <el-row :gutter="50">
           <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
@@ -135,13 +139,6 @@
                 clearable
                 readonly
               ></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="50">
-          <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
-            <el-form-item label="重量单位：" prop="unit">
-              <dict-select @getDictVal="getUnit" v-bind:dictCode="'weightUnit'"></dict-select>
             </el-form-item>
           </el-col>
         </el-row>

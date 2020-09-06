@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-select v-model="param" @change="handleChangeValue" clearable>
+    <el-select v-model="param" @clear="clear" @change="handleChangeValue" clearable>
       <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
     </el-select>
   </div>
@@ -34,6 +34,9 @@ export default {
   },
 
   methods: {
+    clear() {
+      this.$emit("clearDictVal");
+    },
     handleChangeValue(val) {
       this.$emit("getDictVal", val);
     }
