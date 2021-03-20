@@ -176,6 +176,19 @@ export function getVendorArchiveListByVendorId(vendorId) {
 }
 
 /*
+ * 获取快递账号对应的服务仓库列表
+ */
+export function getWareHouseByExpressId(expressId) {
+    if (expressId != null) {
+        return request({
+            url: "/expressCustomerConfigManager/getWareHouseByExpressId",
+            method: "get",
+            params: { expressId: expressId }
+        })
+    }
+}
+
+/*
  * 获取供应商对应的仓库信息列表
  */
 export function getVendorWarehouseListByVendorId(vendorId) {

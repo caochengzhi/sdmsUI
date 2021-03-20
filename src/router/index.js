@@ -118,6 +118,13 @@ export const constantRouterMap = [{
         }
     },
     {
+        path: '/modifyExpressCustomer',
+        component: resolve => require(['../components/page/ModifyExpressCustomer.vue'], resolve),
+        meta: {
+            title: '编辑电子面单客户号'
+        }
+    },
+    {
         path: '/transactionManagement',
         component: resolve => require(['../components/page/MaterialTransSearch.vue'], resolve),
         meta: {
@@ -174,7 +181,7 @@ export const constantRouterMap = [{
         }
     },
     {
-        path: '/orderReviewManagement',
+        path: '/orderOutStockManagement',
         component: resolve => require(['../components/page/OrderOutStockearch.vue'], resolve),
         meta: {
             title: '订单出库管理'

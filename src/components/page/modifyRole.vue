@@ -56,7 +56,7 @@
           <el-input v-model="form.resourceIds" type="hidden"></el-input>
         </el-form>
       </el-tab-pane>
-      <el-tab-pane label="编辑权限" name="second">
+      <el-tab-pane label="菜单权限" name="second">
         <el-row :gutter="10">
           <el-col class="wraper">
             <el-backtop target=".wraper"></el-backtop>
@@ -75,6 +75,10 @@
           </el-col>
         </el-row>
       </el-tab-pane>
+      <el-tab-pane
+        label="数据权限"
+        name="thrid"
+      >设计思路()：1、不同的商家只能查看自己导入的订单信息；2、不同的仓库管理员只能查看分配给自己仓库的订单信息；3、只有系统管理员才可以查看所有商家或仓库的订单信息</el-tab-pane>
     </el-tabs>
   </div>
 </template>

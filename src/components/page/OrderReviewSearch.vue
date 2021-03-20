@@ -15,7 +15,7 @@
       </div>
       <el-form ref="form" :model="searchForm" label-width="auto">
         <el-row :gutter="50">
-          <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
+          <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
             <el-form-item label="客户选择:">
               <el-select v-model="searchForm.customerId" clearable placeholder="请选择">
                 <el-option
@@ -27,7 +27,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
+          <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
             <el-form-item label="商家货品:">
               <el-select
                 v-model="searchForm.customerItemSpecific"
@@ -44,7 +44,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
+          <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
             <el-form-item label="省市区:">
               <el-cascader
                 v-model="areaArrays"
@@ -56,12 +56,12 @@
           </el-col>
         </el-row>
         <el-row :gutter="50">
-          <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
+          <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
             <el-form-item label="客户订单号:">
               <el-input v-model="searchForm.customerOrderNo" placeholder="订单号"></el-input>
             </el-form-item>
           </el-col>
-          <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
+          <el-col :xs="8" :sm="8" :md="8" :lg="14" :xl="8">
             <el-form-item label="订单导入时间:">
               <el-date-picker
                 v-model="searchForm.pickDate"
@@ -150,7 +150,11 @@
     </div>
 
     <!-- Form，说明：整个页面使用同一个searchForm对象，是因为如果用户审核全部订单时需要再次在后台查询订单数据 -->
-    <el-dialog title="订单审核" :visible.sync="dialogFormVisible">
+    <el-dialog
+      title="订单审核"
+      :before-close="this.COMMON.handleClose"
+      :visible.sync="dialogFormVisible"
+    >
       <el-form :model="searchForm" v-loading="loading" element-loading-text="订单审核中，请稍等...">
         <el-form-item label="审核：" :label-width="formLabelWidth">
           <el-radio v-model="searchForm.isValidSet" label="Y" @change="changeStatus('Y')">通过</el-radio>
@@ -163,7 +167,7 @@
             v-bind:dictCode="'warehouse'"
           ></dict-selectId>
         </el-form-item>
-        <el-form-item label="快递公司：" v-show="isShow" :label-width="formLabelWidth" required>
+        <el-form-item label="快递公司：" v-show="isShow" :label-width="formLabelWidth">
           <dict-selectId
             @clearDictVal="clearExpressCompany"
             @getDictVal="getExpressCompany"
@@ -204,10 +208,9 @@ export default {
         pickDate: null,
         areas: null,
         isReviewed: "N",
-        sortName: "created_date",
-        sortOrder: "desc",
         isValidSet: null, //用来传递用户审核订单通过与否
         remarks: null,
+        //这2个字段放在查询条件考虑：提交审批动作时，在查询条件中拿到用户设置的以下2个字段的值
         expressCompanyId: null, //注意：订单审核子页面中用来分配快递公司用的字段
         warehouseId: null //注意：订单审核子页面中用来分配仓库用的字段
       },
@@ -336,6 +339,12 @@ export default {
     },
     handleOrderList() {
       this.tabLoading = true;
+
+      this.$delete(this.searchForm, "expressCompanyId");
+      this.$delete(this.searchForm, "warehouseId");
+      this.$delete(this.searchForm, "isValidSet");
+      this.$delete(this.searchForm, "headerIds");
+
       this.$set(this.searchForm, "pageNum", this.currentPage);
       this.$set(this.searchForm, "pageSize", this.pageSize);
       this.$set(this.searchForm, "sortName", "created_date");
@@ -367,31 +376,25 @@ export default {
     restFrm() {
       this.searchForm = {
         isValid: "Y",
-        isReviewed: "N",
-        sortName: "created_date",
-        sortOrder: "desc"
+        isReviewed: "N"
       };
       this.areaArrays = null;
     },
     //订单审核提交
     submitOrders() {
-      if (this.searchForm.isValidSet === "Y") {
-        if (
-          this.searchForm.warehouseId == null ||
-          this.searchForm.expressCompanyId == null
-        ) {
-          this.$message({
-            message: "'发货仓库'或'快递公司'不允许为空，请检查!",
-            type: "warning"
-          });
-          return;
-        }
+      if (
+        this.searchForm.isValidSet === "Y" &&
+        this.searchForm.warehouseId == null
+      ) {
+        this.$message({
+          message: "'发货仓库'不允许为空，请检查!",
+          type: "warning"
+        });
+        return;
       }
-
       this.loading = true;
       //1、情况一，如果用户选择指定行审核订单
       if (this.orderIds.length > 0) {
-        orderIds: JSON.stringify(this.orderIds);
         this.$set(this.searchForm, "headerIds", JSON.stringify(this.orderIds));
       }
       //2、情况二，当前符合查询条件的所有订单，所以需要把查询条件再次封装给后台
@@ -407,6 +410,7 @@ export default {
           );
         }
       }
+
       request({
         url: "/orderManagement/reviewOrders",
         method: "post",
@@ -439,6 +443,8 @@ export default {
       }).then(() => {
         this.changeStatus("Y");
         this.searchForm.isValidSet = "Y";
+        this.clearWarhouse();
+        this.clearExpressCompany();
         this.searchForm.remarks = null;
         this.dialogFormVisible = true;
       });

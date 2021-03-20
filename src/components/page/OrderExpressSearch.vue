@@ -3,7 +3,7 @@
     <div>
       <el-form ref="form" :model="searchForm" label-width="auto">
         <el-row :gutter="50">
-          <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
+          <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
             <el-form-item label="客户选择:">
               <el-select v-model="searchForm.customerId" clearable placeholder="请选择">
                 <el-option
@@ -15,7 +15,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
+          <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
             <el-form-item label="商家货品:">
               <el-select
                 v-model="searchForm.customerItemSpecific"
@@ -32,7 +32,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
+          <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
             <el-form-item label="省市区:">
               <el-cascader
                 v-model="areaArrays"
@@ -44,17 +44,17 @@
           </el-col>
         </el-row>
         <el-row :gutter="50">
-          <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
+          <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
             <el-form-item label="客户订单号:">
               <el-input v-model="searchForm.customerOrderNo" placeholder="订单号"></el-input>
             </el-form-item>
           </el-col>
-          <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
+          <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
             <el-form-item label="快递单号:">
               <el-input v-model="searchForm.expressNo" placeholder="快递单号"></el-input>
             </el-form-item>
           </el-col>
-          <el-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8">
+          <el-col :xs="8" :sm="8" :md="8" :lg="7" :xl="8">
             <el-form-item label="快递公司:">
               <dict-selectId @getDictVal="getExpressCompany" v-bind:dictCode="'expressCompany'"></dict-selectId>
             </el-form-item>
@@ -113,35 +113,33 @@
         :total="count"
       ></el-pagination>
     </div>
-    <div class="container">
-      <el-drawer
-        :visible.sync="drawer"
-        :before-close="handleClose"
-        :show-close="false"
-        :with-header="false"
-      >
-        <div style="margin-left:25px;margin-top:20px;height:100%;">
-          <div style="margin-bottom:15px">
-            物流信息查看：
-            <el-radio-group v-model="reverse">
-              <el-radio :label="true">倒序</el-radio>
-              <el-radio :label="false">正序</el-radio>
-            </el-radio-group>
-          </div>
-          <div style="height:65%;overflow:scroll;">
-            <el-timeline :reverse="reverse" style="margin-left:25px">
-              <el-timeline-item
-                v-for="(activity, index) in activities"
-                :key="index"
-                :type="'primary'"
-                :size="'large'"
-                :timestamp="activity.acceptTime"
-              >{{activity.content}}</el-timeline-item>
-            </el-timeline>
-          </div>
+    <el-drawer
+      :visible.sync="drawer"
+      :before-close="handleClose"
+      :show-close="false"
+      :with-header="false"
+    >
+      <div style="margin-left:25px;margin-top:20px;height:100%;">
+        <div style="margin-bottom:15px">
+          物流信息查看：
+          <el-radio-group v-model="reverse">
+            <el-radio :label="true">倒序</el-radio>
+            <el-radio :label="false">正序</el-radio>
+          </el-radio-group>
         </div>
-      </el-drawer>
-    </div>
+        <div style="height:65%;overflow:scroll;">
+          <el-timeline :reverse="reverse" style="margin-left:25px">
+            <el-timeline-item
+              v-for="(activity, index) in activities"
+              :key="index"
+              :type="'primary'"
+              :size="'large'"
+              :timestamp="activity.acceptTime"
+            >{{activity.content}}</el-timeline-item>
+          </el-timeline>
+        </div>
+      </div>
+    </el-drawer>
   </div>
 </template>
 <script>
@@ -168,8 +166,6 @@ export default {
         isValid: "Y",
         areas: null,
         isGeneratedExpressNo: "Y",
-        sortName: "created_date",
-        sortOrder: "desc",
         remarks: null
       },
       isShow: false,

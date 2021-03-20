@@ -64,8 +64,9 @@
         <el-table-column prop="customerName" label="客户号" width="130"></el-table-column>
         <el-table-column prop="monthCode" label="月结号" width="100"></el-table-column>
         <el-table-column prop="sendSite" label="所属网店" width="120"></el-table-column>
-        <el-table-column prop="sendStaff" label="网店快递员"></el-table-column>
+        <el-table-column prop="sendStaff" label="快递员"></el-table-column>
         <el-table-column prop="isValid" label="是否有效"></el-table-column>
+        <el-table-column prop="remark" label="备注信息"></el-table-column>
         <el-table-column
           prop="createdDate"
           :formatter="dateFormat"
@@ -80,10 +81,23 @@
           sortable
           width="150"
         ></el-table-column>
+        <el-table-column fixed="right" label="对接仓库" width="100">
+          <template slot-scope="scope">
+            <el-button @click="handleClick(scope.row)" type="text">查看</el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
 
     <div>
+      <!-- Table -->
+      <el-dialog title="仓库列表" :visible.sync="dialogTableVisible" center>
+        <el-table :data="gridData">
+          <el-table-column property="vendorName" label="供应商" width="150"></el-table-column>
+          <el-table-column property="warehouse" label="仓库"></el-table-column>
+          <el-table-column property="warehouseAddress" label="地址" width="200"></el-table-column>
+        </el-table>
+      </el-dialog>
       <!-- Form -->
       <el-dialog
         title="电子面单客户号配置"
@@ -131,6 +145,7 @@
 <script>
 import request from "@/utils/request";
 import dictSelectId from "@/components/common/DictDataSelectId.vue";
+import { getWareHouseByExpressId } from "@/utils/baseRequest";
 export default {
   name: "expressCustomerConfigManagement",
   data() {
@@ -161,7 +176,9 @@ export default {
           label: "Y"
         }
       ],
+      gridData: [],
       dialogFormVisible: false,
+      dialogTableVisible: false,
       formLabelWidth: "100px"
     };
   },
@@ -191,7 +208,6 @@ export default {
         });
         return;
       }
-
       request({
         url: "/expressCustomerConfigManager/saveExpressConfig",
         method: "post",
@@ -204,6 +220,12 @@ export default {
         this.handleList();
       });
       this.dialogFormVisible = false;
+    },
+    handleClick(row) {
+      getWareHouseByExpressId(row.id).then(response => {
+        this.gridData = response.data;
+      });
+      this.dialogTableVisible = true;
     },
     getExpressCompany(val) {
       this.searchForm.expressCompanyId = val;
@@ -219,11 +241,8 @@ export default {
       return this.COMMON.dateFormat(date);
     },
     addConfig() {
-      this.dialogFormVisible = true;
-      this.form = {};
-    },
-    getRowDatas(currentRow, oldCurrentRow) {
-      this.row = currentRow;
+      // this.dialogFormVisible = true;
+      this.$router.push({ path: "modifyExpressCustomer" });
     },
     modifyConfig() {
       if (this.row == null) {
@@ -233,8 +252,13 @@ export default {
         });
         return;
       }
-      this.dialogFormVisible = true;
-      this.form = Object.assign({}, this.row);
+      this.$router.push({
+        path: "modifyExpressCustomer",
+        query: { row: this.row }
+      });
+    },
+    getRowDatas(currentRow, oldCurrentRow) {
+      this.row = currentRow;
     }
   }
 };
